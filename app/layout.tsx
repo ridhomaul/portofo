@@ -1,37 +1,63 @@
 import type { Metadata } from "next";
 import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/app/components/Navbar";
 import { ThemeProvider } from "@/app/components/ThemeProvider";
-import ThemeBackground from "@/app/components/ThemeBackground";
+import Header from "@/app/components/Header";
+import { site } from "@/content/site";
 
-const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
-const outfit = Outfit({ variable: "--font-geist", subsets: ["latin"] });
+const inter = Inter({ variable: "--font-inter", subsets: ["latin"], display: "swap" });
+const outfit = Outfit({ variable: "--font-geist", subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Ridho Maulana | Full-Stack Developer & Media Specialist",
+  metadataBase: new URL(site.url),
+  title: {
+    default: `${site.name} — Full-Stack Developer | Laravel & Next.js`,
+    template: `%s | ${site.name}`,
+  },
   description:
-    "Personal portfolio of Ridho Maulana — Full-Stack Developer focused on building clean, scalable web applications and high-impact digital media strategies.",
+    "Full-stack developer in Jakarta building Laravel and Next.js platforms, with two years leading digital media production.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    siteName: site.name,
+    url: site.url,
+    title: `${site.name} — Full-Stack Developer`,
+    description:
+      "Laravel and Next.js platforms, built by a developer who spent two years running digital media production.",
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: `${site.name} portfolio` }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${site.name} — Full-Stack Developer`,
+    images: ["/og.png"],
+  },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: site.name,
+  jobTitle: "Full-Stack Developer",
+  url: site.url,
+  email: `mailto:${site.email}`,
+  address: { "@type": "PostalAddress", addressLocality: "Jakarta", addressCountry: "ID" },
+  sameAs: site.socials.map((s) => s.href),
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="id"
-      className={`${inter.variable} ${outfit.variable} h-full antialiased`}
-      suppressHydrationWarning
-    >
-      <body className="min-h-full flex flex-col font-sans relative transition-colors duration-300">
+    <html lang="en" className={`${inter.variable} ${outfit.variable}`} suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
+      <body className="font-sans">
         <ThemeProvider>
-          <ThemeBackground />
-          <Navbar />
-          <div className="relative z-10 flex-1 w-full h-full">
-            {children}
-          </div>
+          <Header />
+          <main>{children}</main>
         </ThemeProvider>
       </body>
     </html>

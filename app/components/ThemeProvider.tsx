@@ -1,24 +1,11 @@
 "use client";
 
-import { ThemeProvider as NextThemesProvider } from "next-themes";
-import { useEffect, useState } from "react";
+import { ThemeProvider as NextThemeProvider } from "next-themes";
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [mounted, setMounted] = useState(false);
-
-  // Mencegah error Hydration Mismatch dari Next.js
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return <>{children}</>;
-  }
-
   return (
-    <NextThemesProvider attribute="class" defaultTheme="system" enableSystem>
+    <NextThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
       {children}
-    </NextThemesProvider>
+    </NextThemeProvider>
   );
 }

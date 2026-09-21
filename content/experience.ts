@@ -1,0 +1,40 @@
+export type Role = {
+  period: string;
+  title: string;
+  org: string;
+  place: string;
+  // Satu baris pencapaian TERUKUR — bukan deskripsi tugas.
+  // Buruk : "Bertanggung jawab sebagai Content Planner dan Editor."
+  // Baik  : "Led production of 2,000+ pieces over two years."
+  note?: string;
+};
+
+export const experience: Role[] = [
+  {
+    period: "2026",
+    title: "Full-Stack Developer & Researcher",
+    org: "MileniaNews × Universitas Bina Sarana Informatika",
+    place: "Jakarta, Indonesia",
+    note: "Designed and built the Milenner platform end to end using a Waterfall process.",
+  },
+  {
+    period: "2024 — Present",
+    title: "Digital Media Specialist",
+    org: "MileniaNews",
+    place: "Jakarta, Indonesia",
+    note: "TODO — angka konsisten. Contoh: led production of 2,000+ pieces across two years.",
+  },
+  {
+    period: "2025",
+    title: "Researcher, Medical Record Encryption",
+    org: "Universitas Bina Sarana Informatika",
+    place: "Jakarta, Indonesia",
+  },
+  {
+    period: "2022",
+    title: "IT Support",
+    org: "Gedung Bidakara",
+    place: "Jakarta, Indonesia",
+    note: "Provisioned and maintained employee workstations to company standard.",
+  },
+];

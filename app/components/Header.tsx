@@ -1,0 +1,55 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
+import { site } from "@/content/site";
+
+// Contact SENGAJA ada di navigasi. Itu tujuan akhir seluruh situs —
+// jangan sampai orang harus scroll sampai habis untuk menemukannya.
+const nav = [
+  { label: "Work", href: "#work" },
+  { label: "Experience", href: "#experience" },
+  { label: "Contact", href: "#contact" },
+];
+
+export default function Header() {
+  const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  return (
+    <header className="sticky top-0 z-50 border-b border-border bg-bg/80 backdrop-blur-md">
+      <div className="mx-auto flex h-16 max-w-[1080px] items-center justify-between px-6 md:px-10">
+        <a href="#top" className="display text-lg tracking-tight" aria-label={site.name}>
+          {site.initials}
+        </a>
+
+        <nav className="flex items-center gap-1 sm:gap-2">
+          {nav.map((item) => (
+            <a
+              key={item.href}
+              href={item.href}
+              className="rounded-sm px-2.5 py-2 text-sm text-text-secondary transition-colors hover:text-text-primary sm:px-3"
+            >
+              {item.label}
+            </a>
+          ))}
+
+          <span className="mx-1 h-5 w-px bg-border sm:mx-2" aria-hidden />
+
+          <button
+            type="button"
+            onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+            aria-label="Switch theme"
+            className="rounded-sm p-2 text-text-secondary transition-colors hover:text-text-primary"
+          >
+            {mounted && resolvedTheme === "dark"
+              ? <Sun className="h-[18px] w-[18px]" />
+              : <Moon className="h-[18px] w-[18px]" />}
+          </button>
+        </nav>
+      </div>
+    </header>
+  );
+}

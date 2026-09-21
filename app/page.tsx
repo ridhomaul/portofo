@@ -1,543 +1,86 @@
-"use client";
+import { requireUser, getActiveMediaId } from "@/lib/auth/guards";
+import { readWorkspaceCookie } from "@/lib/auth/workspace";
+import { isSuperAdmin } from "@/lib/authorization/roles";
+import { getAllMedia } from "@/features/media/queries/get-media";
+import { getReport, type ReportFilter, type ReportPeriod } from "@/features/dashboard/queries/get-report";
+import { ReportFilters } from "@/features/dashboard/components/ReportFilters";
+import { ReportTable } from "@/features/dashboard/components/ReportTable";
+import { StatsGrid } from "@/features/dashboard/components/StatsGrid";
 
-import Image from "next/image";
-import { useState, useRef, useEffect } from "react";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import {
-  SiLaravel, SiPhp, SiPostgresql, SiMysql, SiDocker,
-  SiTypescript, SiNextdotjs, SiReact, SiTailwindcss, SiGreensock,
-  SiPython, SiFigma, SiCanva, SiInstagram, SiWhatsapp, SiGithub, SiLinkerd,
-  SiSupabase, SiAnimedotjs
-} from "react-icons/si";
-import { Video, Camera, ExternalLink, ArrowUpRight } from "lucide-react";
-import Preloader from "./components/Preloader";
-import BentoProjects from "./components/BentoProjects";
-import DeveloperBadge from "./components/DeveloperBadge";
-import { ProjectShowcase, type ShowcaseItem } from "@/components/ui/project-showcase";
-import { ProjectsCarousel, type Testimonial } from "@/components/ui/projects-carousel";
+const MONTHS = [
+  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+  "Juli", "Agustus", "September", "Oktober", "November", "Desember",
+];
 
-// Anime.js Micro-Interaction Hooks
-import { useButtonInteraction } from "./hooks/useButtonInteraction";
-import { useCardInteraction } from "./hooks/useCardInteraction";
-import { useCursorReflection } from "./hooks/useCursorReflection";
+type SearchParams = Promise<{
+  mediaId?: string;
+  period?: string;
+  day?: string;
+  month?: string;
+  year?: string;
+}>;
 
-// Register ScrollTrigger
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger, useGSAP);
+function parsePeriod(value: string | undefined): ReportPeriod {
+  return value === "day" || value === "month" || value === "year" ? value : "month";
 }
 
-// ===== DATA =====
+export default async function ReportsPage({ searchParams }: { searchParams: SearchParams }) {
+  const user = await requireUser();
+  const superAdmin = isSuperAdmin(user.role);
+  const sp = await searchParams;
 
-const projects: Testimonial[] = [
-  {
-    name: "Milenner Platform",
-    quote:
-      "Platform manajemen konten tim media sosial berbasis web dengan fitur Kanban board, multi-tenancy, dan performa tinggi. Merancang arsitektur sistem dari nol, membangun fitur Kanban board real-time, dan mengimplementasikan sistem multi-tenancy.",
-    src: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=2574&auto=format&fit=crop",
-    designation: "2026 • Laravel 12, PHP 8.4, PostgreSQL, Kanban",
-  },
-  {
-    name: "MileniaNews Content Production",
-    quote:
-      "Perencanaan, penyuntingan, dan produksi lebih dari 600 konten media digital dengan strategi distribusi yang terukur. Memimpin tim konten, menyusun editorial calendar, dan mengeksekusi produksi video dari pre-production hingga distribusi.",
-    src: "https://images.unsplash.com/photo-1542204165-65bf26472b9b?q=80&w=2574&auto=format&fit=crop",
-    designation: "2024 – 2026 • Content Planning, Video Editing, Media Strategy",
-  },
-  {
-    name: "Personal Portfolio v2",
-    quote:
-      "Desain portofolio personal dengan pendekatan minimalis, performa optimal, dan animasi interaktif menggunakan GSAP & Anime.js. Membangun seluruh frontend dari desain hingga deployment, termasuk design system dan micro-interactions.",
-    src: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2672&auto=format&fit=crop",
-    designation: "2026 • Next.js 14, Tailwind v4, GSAP, Anime.js",
-  },
-];
+  const now = new Date();
+  const period = parsePeriod(sp.period);
+  const year = Number(sp.year) || now.getFullYear();
+  const month = Number(sp.month) || now.getMonth() + 1;
+  const day = sp.day || now.toISOString().slice(0, 10);
 
-const experiences: ShowcaseItem[] = [
-  {
-    title: "Full-Stack Developer & Researcher",
-    description: "MileniaNews & Universitas Bina Sarana Informatika. Merancang aplikasi manajemen proyek media sosial menggunakan Metode Waterfall dan mengembangkan arsitektur backend kokoh dengan integrasi database relasional.",
-    year: "2026",
-    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2672&auto=format&fit=crop",
-  },
-  {
-    title: "Digital Media Specialist (Intern)",
-    description: "MileniaNews. Bertanggung jawab sebagai Content Planner, Editor, dan Camera Person. Berhasil memproduksi dan mendistribusikan lebih dari 2000 konten digital.",
-    year: "2024 – Present",
-    image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2670&auto=format&fit=crop",
-  },
-  {
-    title: "IT Support",
-    description: "Gedung Bidakara, Jakarta. Instalasi, konfigurasi, dan pemeliharaan perangkat karyawan serta instalasi Sistem Operasi dan perangkat lunak sesuai standar perusahaan.",
-    year: "2022",
-    image: "https://images.unsplash.com/photo-1629654297299-c8506221ca97?q=80&w=2574&auto=format&fit=crop",
-  },
-  {
-    title: "Encryption Data Rekam Medis",
-    description: "Universitas Bina Sarana Informatika. Mengimplementasikan sistem enkripsi untuk keamanan data medis pada platform web.",
-    year: "2025",
-    image: "https://images.unsplash.com/photo-1563206767-5b18f218e8de?q=80&w=2669&auto=format&fit=crop",
-  },
-];
+  // Media scope: Super Admin boleh pilih media tertentu atau semua media;
+  // selain itu terkunci pada workspace aktif.
+  const allMedia = superAdmin ? await getAllMedia() : [];
+  let mediaId: number | null;
+  if (superAdmin) {
+    mediaId = sp.mediaId && sp.mediaId !== "all" ? Number(sp.mediaId) : null;
+  } else {
+    mediaId = await getActiveMediaId(user, await readWorkspaceCookie());
+  }
 
-const techStack = {
-  Frontend: [
-    { name: "React", Icon: SiReact, color: "#61DAFB" },
-    { name: "Next.js", Icon: SiNextdotjs, color: "" },
-    { name: "TypeScript", Icon: SiTypescript, color: "#3178C6" },
-    { name: "Tailwind CSS", Icon: SiTailwindcss, color: "#06B6D4" },
-    { name: "GSAP", Icon: SiGreensock, color: "#88CE02" },
-    { name: "Anime.js", Icon: SiAnimedotjs, color: "#FF4C29" },
-  ],
-  Backend: [
-    { name: "PHP", Icon: SiPhp, color: "#777BB4" },
-    { name: "Laravel", Icon: SiLaravel, color: "#FF2D20" },
-    { name: "Python", Icon: SiPython, color: "#3776AB" },
-  ],
-  Database: [
-    { name: "PostgreSQL", Icon: SiPostgresql, color: "#4169E1" },
-    { name: "MySQL", Icon: SiMysql, color: "#4479A1" },
-    { name: "Supabase", Icon: SiSupabase, color: "#3ECF8E" },
-  ],
-  Tools: [
-    { name: "Docker", Icon: SiDocker, color: "#2496ED" },
-    { name: "Figma", Icon: SiFigma, color: "#F24E1E" },
-    { name: "Canva", Icon: SiCanva, color: "#00C4CC" },
-    { name: "Video Editing", Icon: Video, color: "#EF4444" },
-    { name: "Camera Person", Icon: Camera, color: "#737373" },
-  ],
-};
+  const filter: ReportFilter = { mediaId, period, day, month, year };
+  const report = await getReport(filter);
 
-const socialLinks = [
-  { href: "https://www.instagram.com/maulani.sudjatmiko", icon: SiInstagram, label: "Instagram" },
-  { href: "https://www.linkedin.com/in/ridho-maulana-073aaa386/", icon: SiLinkerd, label: "LinkedIn" },
-  { href: "https://wa.me/629818775467", icon: SiWhatsapp, label: "WhatsApp" },
-  { href: "https://github.com/ridhomaul", icon: SiGithub, label: "GitHub" },
-];
+  const mediaLabel = superAdmin
+    ? mediaId
+      ? allMedia.find((m) => m.id === mediaId)?.name ?? "Media"
+      : "Semua Media"
+    : "Workspace Aktif";
 
-// ===== COMPONENT =====
-
-export default function Home() {
-  const [introFinished, setIntroFinished] = useState(false);
-  const [reducedMotion, setReducedMotion] = useState(false);
-  const [isFlipped, setIsFlipped] = useState(false);
-  const container = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setReducedMotion(mediaQuery.matches);
-
-    const listener = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
-    mediaQuery.addEventListener("change", listener);
-    return () => mediaQuery.removeEventListener("change", listener);
-  }, []);
-
-  // Anime.js Micro-Interactions
-  useButtonInteraction(reducedMotion);
-  useCardInteraction(reducedMotion);
-  useCursorReflection(reducedMotion);
-
-  // ===== GSAP ANIMATIONS =====
-  useGSAP(
-    () => {
-      if (!introFinished) return;
-
-      // Hero Reveal
-      const heroTl = gsap.timeline({ defaults: { ease: "power3.out", duration: 0.5 } });
-      heroTl
-        .fromTo(".hero-tag", { opacity: 0, y: 20 }, { opacity: 1, y: 0 })
-        .fromTo(".hero-title", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6 }, "-=0.3")
-        .fromTo(".hero-desc", { opacity: 0, y: 20 }, { opacity: 1, y: 0 }, "-=0.3")
-        .fromTo(".hero-cta", { opacity: 0, y: 20 }, { opacity: 1, y: 0 }, "-=0.2")
-        .fromTo(".hero-social", { opacity: 0 }, { opacity: 1, duration: 0.4 }, "-=0.1");
-
-      // Scroll Progress Bar
-      gsap.to(".scroll-progress-bar", {
-        scaleX: 1,
-        ease: "none",
-        scrollTrigger: { scrub: 0.1, start: "top top", end: "bottom bottom" },
-      });
-
-      // Generic Section Reveal
-      const sections = gsap.utils.toArray(".reveal-section") as HTMLElement[];
-      sections.forEach((sec) => {
-        gsap.fromTo(
-          sec,
-          { opacity: 0, y: 40 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.5,
-            ease: "power3.out",
-            scrollTrigger: { trigger: sec, start: "top 85%", toggleActions: "play none none reverse" },
-          }
-        );
-      });
-
-      // Project Cards Stagger - Handled internally by ProjectsCarousel
-
-      // Tech Stack Items Stagger
-      gsap.fromTo(
-        ".tech-item",
-        { opacity: 0, scale: 0.9 },
-        {
-          opacity: 1,
-          scale: 1,
-          duration: 0.3,
-          stagger: 0.05,
-          ease: "power2.out",
-          scrollTrigger: { trigger: ".tech-container", start: "top 85%" },
-        }
-      );
-
-      // Experience Section Animation removed as it's now handled by ProjectShowcase component internally
-
-      // Contact Fade
-      gsap.fromTo(
-        "#contact > div",
-        { opacity: 0, y: 30 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.5,
-          ease: "power2.out",
-          scrollTrigger: { trigger: "#contact", start: "top 85%" },
-        }
-      );
-    },
-    { scope: container, dependencies: [introFinished] }
-  );
+  const periodLabel =
+    period === "day" ? day : period === "month" ? `${MONTHS[month - 1]} ${year}` : `Tahun ${year}`;
 
   return (
-    <>
-      {!introFinished && <Preloader onComplete={() => setIntroFinished(true)} />}
-
-      {/* Scroll Progress */}
-      <div className="scroll-progress-bar fixed top-0 left-0 h-[2px] bg-accent z-9999 origin-left scale-x-0 pointer-events-none" />
-
-      <div id="home" className="overflow-clip relative w-full" ref={container}>
-        <main>
-          {/* ===== HERO SECTION ===== */}
-          <section className="relative w-full min-h-screen flex items-center">
-            <div className="mx-auto w-full max-w-[1200px] px-6 md:px-12 pt-32 pb-24 lg:pt-40 relative flex justify-between items-center">
-              <div className="max-w-3xl relative z-10">
-                <h1 className="hero-title font-(family-name:--font-geist) text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold leading-[1.1] tracking-tight mb-6">
-                  Building clean, scalable
-                  <br />
-                  web solutions.
-                </h1>
-                <p className="hero-desc text-text-secondary text-lg md:text-xl leading-relaxed max-w-xl mb-10">
-                  Focused on developing robust applications and managing high-impact digital media strategies that connect systems with people.
-                </p>
-
-                <div className="hero-cta flex flex-wrap items-center gap-4 mb-12">
-                  <a
-                    href="/CV-Ridho-Maulana.pdf"
-                    download="CV-Ridho-Maulana.pdf"
-                    className="anime-button group relative inline-flex items-center justify-center rounded-(--radius) bg-text-primary px-8 py-3.5 text-sm font-semibold tracking-wide text-bg transition-all duration-200 hover:opacity-90 overflow-hidden"
-                  >
-                    <span className="relative z-10">Download CV</span>
-                  </a>
-                  <a
-                    href="#contact"
-                    className="anime-button inline-flex items-center justify-center rounded-(--radius) border border-border px-8 py-3.5 text-sm font-semibold tracking-wide transition-all duration-200 hover:border-accent hover:text-accent"
-                  >
-                    Get in Touch
-                  </a>
-                </div>
-
-                <div className="hero-social flex items-center gap-5">
-                  {socialLinks.map((link) => (
-                    <a
-                      key={link.label}
-                      href={link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={link.label}
-                      className="text-text-secondary hover:text-accent transition-colors duration-200"
-                    >
-                      <link.icon className="w-5 h-5" />
-                    </a>
-                  ))}
-                </div>
-              </div>
-
-              {/* Interactive Developer Badge (Hidden on Mobile) */}
-              <div className="hidden lg:flex absolute right-6 xl:right-12 top-0 h-full items-start pointer-events-none z-20 pt-16">
-                 <div className="pointer-events-auto">
-                   <DeveloperBadge />
-                 </div>
-              </div>
-            </div>
-          </section>
-
-          {/* ===== FEATURED PROJECTS ===== */}
-          <section id="projects" className="py-24 md:py-32">
-            <div className="projects-container mx-auto max-w-[1200px] px-6 md:px-12">
-              <div className="reveal-section mb-16 text-center">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-accent/30 bg-accent/5 text-accent text-xs font-semibold tracking-wider uppercase mb-5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                  {projects.length} Projects
-                </div>
-                <h2 className="font-(family-name:--font-geist) text-3xl md:text-4xl font-semibold mb-4">
-                  Featured Projects
-                </h2>
-                <div className="mx-auto w-20 h-1 rounded-full bg-gradient-to-r from-transparent via-text-secondary/50 to-transparent mb-4" />
-                <p className="text-text-secondary max-w-md mx-auto text-sm md:text-base">
-                  Beberapa project pilihan yang menunjukkan kemampuan dan pengalaman saya.
-                </p>
-              </div>
-
-              <div className="reveal-section mt-8">
-                <ProjectsCarousel 
-                  testimonials={projects} 
-                  colors={{
-                    name: "var(--project-showcase-name-color)",
-                    position: "var(--project-showcase-position-color)",
-                    testimony: "var(--project-showcase-testimony-color)",
-                  }}
-                  fontSizes={{
-                    name: "var(--project-showcase-name-size)",
-                    position: "var(--project-showcase-position-size)",
-                    testimony: "var(--project-showcase-testimony-size)",
-                  }}
-                  spacing={{
-                    nameTop: "var(--project-showcase-name-top)",
-                    nameBottom: "var(--project-showcase-name-bottom)",
-                    positionTop: "var(--project-showcase-position-top)",
-                    positionBottom: "var(--project-showcase-position-bottom)",
-                    testimonyTop: "var(--project-showcase-testimony-top)",
-                    testimonyBottom: "var(--project-showcase-testimony-bottom)",
-                    lineHeight: "var(--project-showcase-line-height)",
-                  }}
-                  halomotButtonGradient="var(--project-showcase-button-gradient)"
-                  halomotButtonBackground="var(--project-showcase-button-background)"
-                  halomotButtonTextColor="var(--project-showcase-button-text-color)"
-                  halomotButtonOuterBorderRadius="var(--project-showcase-button-outer-radius)"
-                  halomotButtonInnerBorderRadius="var(--project-showcase-button-inner-radius)"
-                  halomotButtonHoverTextColor="var(--project-showcase-button-hover-text-color)"
-                />
-              </div>
-            </div>
-          </section>
-
-          {/* ===== ABOUT SECTION ===== */}
-          <section id="about" className="py-24 md:py-32 border-t border-border">
-            <div className="reveal-section mx-auto max-w-[1200px] px-6 md:px-12">
-              <div className="grid gap-12 md:gap-16 lg:grid-cols-[1fr_1.2fr] items-center">
-                {/* Profile Image */}
-                <div 
-                  className="relative w-full max-w-md mx-auto lg:mx-0 aspect-square cursor-pointer group"
-                  style={{ perspective: "1000px" }}
-                  onClick={() => setIsFlipped(!isFlipped)}
-                >
-                  <div 
-                    className="relative w-full h-full transition-transform duration-700 ease-in-out"
-                    style={{ 
-                      transformStyle: "preserve-3d", 
-                      transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)" 
-                    }}
-                  >
-                    {/* Front: Static Photo */}
-                    <div 
-                      className="absolute inset-0 overflow-hidden rounded-full shadow-2xl border-4 border-border"
-                      style={{ backfaceVisibility: "hidden" }}
-                    >
-                      <Image
-                        src="/profile1.png"
-                        alt="Ridho Maulana"
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                    </div>
-                    
-                    {/* Back: GIF Placeholder */}
-                    <div 
-                      className="absolute inset-0 overflow-hidden rounded-full shadow-2xl bg-surface flex items-center justify-center border-4 border-border"
-                      style={{ 
-                        backfaceVisibility: "hidden", 
-                        transform: "rotateY(180deg)" 
-                      }}
-                    >
-                      <Image
-                        src="/GIF1.gif"
-                        alt="Ridho Maulana Action"
-                        fill
-                        unoptimized
-                        className="object-cover"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* About Text */}
-                <div>
-                  <h2 className="font-(family-name:--font-geist) text-3xl md:text-4xl font-semibold mb-8">
-                    A developer who thinks
-                    <br />
-                    like a media strategist.
-                  </h2>
-
-                  <div className="space-y-5 text-text-secondary leading-relaxed">
-                    <p>
-                      As a Full-Stack Developer with strong roots in the digital media industry, I see software development as more than just lines of code. It&apos;s about creating an ecosystem that connects systems with people.
-                    </p>
-                    <p>
-                      My specialization lies in designing robust backend architectures, primarily within the Laravel ecosystem, combined with clean and intuitive user interfaces.
-                    </p>
-                    <p>
-                      From leading the execution of thousands of pieces of content at MileniaNews to building the Milenner project governance platform from the ground up, I bring media sensitivity into programming logic to design solutions that are technically scalable and relevant to the audience.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* ===== TECH STACK SECTION ===== */}
-          <section className="py-24 md:py-32 border-t border-border">
-            <div className="tech-container reveal-section mx-auto max-w-[1200px] px-6 md:px-12 mb-12">
-              <h2 className="font-(family-name:--font-geist) text-3xl md:text-4xl font-semibold">
-                Tech Stack
-              </h2>
-            </div>
-
-            {/* Marquee Container */}
-            <div className="relative w-full overflow-hidden flex flex-col gap-8 md:gap-12" style={{ maskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)", WebkitMaskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)" }}>
-              
-              {/* Top Row (Moves Left) */}
-              <div className="animate-marquee gap-10 md:gap-14 pl-10 md:pl-14">
-                {[...Object.values(techStack).flat().slice(0, Math.ceil(Object.values(techStack).flat().length / 2)), ...Object.values(techStack).flat().slice(0, Math.ceil(Object.values(techStack).flat().length / 2))].map((tool, idx) => (
-                  <div
-                    key={`top-${tool.name}-${idx}`}
-                    className="tech-item flex items-center gap-3 shrink-0 group cursor-default"
-                    title={tool.name}
-                  >
-                    <tool.Icon
-                      className={`w-12 h-12 md:w-16 md:h-16 transition-transform duration-200 group-hover:scale-110 ${!tool.color ? "text-text-primary" : ""}`}
-                      style={tool.color ? { color: tool.color } : {}}
-                    />
-                  </div>
-                ))}
-              </div>
-
-              {/* Bottom Row (Moves Right) */}
-              <div className="animate-marquee-reverse gap-10 md:gap-14 pl-10 md:pl-14">
-                {[...Object.values(techStack).flat().slice(Math.ceil(Object.values(techStack).flat().length / 2)), ...Object.values(techStack).flat().slice(Math.ceil(Object.values(techStack).flat().length / 2))].map((tool, idx) => (
-                  <div
-                    key={`bottom-${tool.name}-${idx}`}
-                    className="tech-item flex items-center gap-3 shrink-0 group cursor-default"
-                    title={tool.name}
-                  >
-                    <tool.Icon
-                      className={`w-12 h-12 md:w-16 md:h-16 transition-transform duration-200 group-hover:scale-110 ${!tool.color ? "text-text-primary" : ""}`}
-                      style={tool.color ? { color: tool.color } : {}}
-                    />
-                  </div>
-                ))}
-              </div>
-
-            </div>
-          </section>
-
-          {/* ===== EXPERIENCE SECTION ===== */}
-          <section id="experience" className="py-24 md:py-32 border-t border-border">
-            <div className="reveal-section mx-auto max-w-[1200px] px-6 md:px-12">
-              <ProjectShowcase title="Experience" items={experiences} />
-            </div>
-          </section>
-
-          {/* ===== CONTACT SECTION ===== */}
-          <section id="contact" className="py-24 md:py-32 border-t border-border">
-            <div className="mx-auto max-w-[1200px] px-6 md:px-12">
-              <div className="max-w-2xl mx-auto text-center">
-                <h2 className="font-(family-name:--font-geist) text-3xl md:text-5xl font-semibold mb-6">
-                  Let&apos;s build something together.
-                </h2>
-                <p className="text-text-secondary text-lg leading-relaxed mb-10">
-                  Interested in discussing web architecture, platform collaboration, or simply exchanging ideas? Let&apos;s start a conversation.
-                </p>
-
-                <div className="flex flex-wrap items-center justify-center gap-6 mb-12">
-                  <a
-                    href="mailto:ridho@example.com"
-                    className="anime-button inline-flex items-center gap-2 rounded-(--radius) bg-accent text-white px-8 py-3.5 text-sm font-semibold transition-all duration-200 hover:opacity-90"
-                  >
-                    <ArrowUpRight className="w-4 h-4" />
-                    Send Email
-                  </a>
-                  <a
-                    href="https://www.linkedin.com/in/ridho-maulana-073aaa386/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="anime-button inline-flex items-center gap-2 rounded-(--radius) border border-border px-8 py-3.5 text-sm font-semibold transition-all duration-200 hover:border-accent hover:text-accent"
-                  >
-                    <SiLinkerd className="w-4 h-4" />
-                    LinkedIn
-                  </a>
-                  <a
-                    href="https://github.com/ridhomaul"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="anime-button inline-flex items-center gap-2 rounded-(--radius) border border-border px-8 py-3.5 text-sm font-semibold transition-all duration-200 hover:border-accent hover:text-accent"
-                  >
-                    <SiGithub className="w-4 h-4" />
-                    GitHub
-                  </a>
-                </div>
-
-                {/* Optional Contact Form */}
-                <form
-                  className="grid gap-4 max-w-lg mx-auto text-left"
-                  aria-label="Contact form"
-                  onSubmit={(e) => e.preventDefault()}
-                >
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <input
-                      name="name"
-                      type="text"
-                      placeholder="Name"
-                      className="p-4 border border-border bg-surface rounded-(--radius) text-sm font-medium transition-colors duration-200"
-                    />
-                    <input
-                      name="email"
-                      type="email"
-                      placeholder="Email"
-                      className="p-4 border border-border bg-surface rounded-(--radius) text-sm font-medium transition-colors duration-200"
-                    />
-                  </div>
-                  <textarea
-                    name="message"
-                    rows={5}
-                    placeholder="Message"
-                    className="p-4 border border-border bg-surface rounded-(--radius) text-sm font-medium transition-colors duration-200 resize-none"
-                  />
-                  <button
-                    type="submit"
-                    className="anime-button group relative overflow-hidden rounded-(--radius) bg-text-primary text-bg px-8 py-3.5 text-sm font-semibold transition-all duration-200 hover:opacity-90 w-full sm:w-fit cursor-pointer"
-                  >
-                    Send Message
-                  </button>
-                </form>
-              </div>
-            </div>
-          </section>
-
-          {/* ===== FOOTER ===== */}
-          <footer className="py-8 border-t border-border">
-            <div className="mx-auto max-w-[1200px] px-6 md:px-12 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <p className="text-xs font-medium text-text-secondary">
-                © 2026 Ridho Maulana. All rights reserved.
-              </p>
-              <p className="text-xs font-medium text-text-secondary">
-                Built with Next.js, GSAP & Anime.js
-              </p>
-            </div>
-          </footer>
-        </main>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-xl font-semibold">Reports</h1>
+        <p className="text-sm text-muted-foreground">
+          Laporan konten per media dan periode.
+        </p>
       </div>
-    </>
+
+      <ReportFilters
+        media={allMedia}
+        canChooseMedia={superAdmin}
+        current={{
+          mediaId: mediaId ? String(mediaId) : "all",
+          period,
+          day,
+          month: String(month),
+          year: String(year),
+        }}
+      />
+
+      <StatsGrid stats={{ total: report.total, byStatus: report.byStatus }} />
+
+      <ReportTable report={report} mediaLabel={mediaLabel} periodLabel={periodLabel} />
+    </div>
   );
 }
