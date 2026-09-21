@@ -23,6 +23,26 @@ export default function Header() {
     () => false
   );
 
+  const toggleTheme = () => {
+    const next = resolvedTheme === "dark" ? "light" : "dark";
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (!document.startViewTransition || prefersReducedMotion) {
+      setTheme(next);
+      return;
+    }
+
+    // next-themes menerapkan class lewat effect setelah render, jadi
+    // kalau DOM belum berubah saat callback ini selesai, browser
+    // memotret tampilan yang sama sebelum & sesudah — animasinya
+    // tidak akan terlihat. Toggle class manual di sini memastikan
+    // screenshot "before/after" View Transitions benar-benar berbeda.
+    document.startViewTransition(() => {
+      document.documentElement.classList.toggle("dark", next === "dark");
+      setTheme(next);
+    });
+  };
+
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-bg/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-3xl items-center justify-between px-6">
@@ -45,7 +65,7 @@ export default function Header() {
 
           <button
             type="button"
-            onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+            onClick={toggleTheme}
             aria-label="Switch theme"
             className="rounded-sm p-2 text-text-secondary transition-colors hover:text-text-primary"
           >

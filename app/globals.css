@@ -86,6 +86,25 @@ body {
 .animate-marquee-left  { animation: marquee-left 32s linear infinite; }
 .animate-marquee-right { animation: marquee-right 32s linear infinite; }
 
+/* Transisi "tirai terbuka" saat toggle tema (Header.tsx). Tidak perlu
+   disebutkan di blok prefers-reduced-motion di bawah: pseudo-element
+   ::view-transition-* hidup di pohon render terpisah, bukan tersentuh
+   oleh selector `*` di sana — dan lebih penting, Header.tsx sama
+   sekali tidak memanggil document.startViewTransition() saat
+   prefers-reduced-motion aktif, jadi animasi ini tidak pernah mulai. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-new(root) {
+  animation: curtain-open 700ms cubic-bezier(.65, 0, .35, 1);
+}
+@keyframes curtain-open {
+  from { clip-path: inset(0 50% 0 50%); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .rise { animation: none; }
