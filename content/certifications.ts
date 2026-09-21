@@ -9,9 +9,9 @@ export type Certification = {
 
 export const certifications: Certification[] = [
   {
-    date: "TODO",
-    title: "TODO - nama sertifikat",
-    issuer: "TODO - penerbit",
-    image: "/certificates/contoh.png",
+    date: "21 May 2024",
+    title: "Workshop IT Bootcamp",
+    issuer: "Universitas Bina Sarana Informatika",
+    image: "/certificates/sertifikat-digital.png",
   },
 ];

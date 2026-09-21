@@ -95,7 +95,7 @@ function MarqueeRow({ items, direction }: { items: string[]; direction: "left" |
   // seperti sebelumnya — jarak tempuh animasi ikut berlipat dua.
   const looped = [...items, ...items, ...items, ...items];
   return (
-    <div className="overflow-hidden motion-reduce:overflow-x-auto motion-reduce:[scrollbar-width:thin]">
+    <div className="overflow-hidden motion-reduce:overflow-x-auto motion-reduce:scrollbar-thin">
       <div
         className={`flex w-max gap-10 py-1 ${
           direction === "left" ? "animate-marquee-left" : "animate-marquee-right"
@@ -120,7 +120,7 @@ export default function StackGrid() {
     <section className="pb-20">
       <h2 className="display mx-auto mb-10 max-w-3xl px-6 text-3xl">Stack</h2>
 
-      <div className="mx-auto max-w-3xl overflow-hidden px-6 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)] [-webkit-mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+      <div className="mx-auto max-w-3xl overflow-hidden px-6 mask-[linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
         <div className="flex flex-col gap-4">
           <MarqueeRow items={row1} direction="left" />
           <MarqueeRow items={row2} direction="right" />

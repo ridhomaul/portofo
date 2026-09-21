@@ -14,7 +14,7 @@ export default function ProjectGrid() {
             className="group flex flex-col overflow-hidden rounded-(--radius) border border-dashed border-border"
           >
             <div className="p-2">
-              <div className="relative aspect-[2/1] overflow-hidden rounded-[10px] bg-surface">
+              <div className="relative aspect-2/1 overflow-hidden rounded-[10px] bg-surface">
                 <Image
                   src={p.image}
                   alt={`${p.name} screenshot`}

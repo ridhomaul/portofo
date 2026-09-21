@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { Sun, Moon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { site } from "@/content/site";
@@ -8,15 +8,20 @@ import { site } from "@/content/site";
 // Contact SENGAJA ada di navigasi. Itu tujuan akhir seluruh situs —
 // jangan sampai orang harus scroll sampai habis untuk menemukannya.
 const nav = [
-  { label: "Work", href: "#work" },
+  { label: "Projects", href: "#work" },
   { label: "Experience", href: "#experience" },
   { label: "Contact", href: "#contact" },
 ];
 
+const emptySubscribe = () => () => {};
+
 export default function Header() {
   const { resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-bg/80 backdrop-blur-md">

@@ -35,7 +35,7 @@ export default function Hero() {
       <div className="rise flex flex-col items-start gap-6 sm:flex-row sm:items-center">
         <PixelReveal
           cover="/Myface.1.png"
-          reveal="/profile1.png"
+          reveal="/profil2.png"
           alt={site.name}
           className="w-32 shrink-0 sm:w-40"
 />
