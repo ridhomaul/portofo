@@ -35,22 +35,28 @@
 /* ===== BASE ===== */
 * { border-color: var(--color-border); }
 
-html { scroll-behavior: smooth; scroll-padding-top: 6rem; }
+html { scroll-behavior: smooth; scroll-padding-top: 6rem; overflow-x: clip; }
 
 body {
   background: var(--color-bg);
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: clip;
 }
 
 /* Judul: berat RINGAN dan tracking rapat. Ini tanda tangan visualnya —
-   jangan diganti jadi font-bold. */
-.display {
-  font-family: var(--font-display);
-  font-weight: 300;
-  letter-spacing: -0.025em;
-  line-height: 1.08;
+   jangan diganti jadi font-bold. Ditaruh di @layer components (bukan
+   tanpa layer) supaya utility seperti font-medium/font-normal di
+   section lain tetap bisa menimpanya — di Tailwind v4, style tanpa
+   layer selalu menang atas @layer utilities apa pun urutannya. */
+@layer components {
+  .display {
+    font-family: var(--font-display);
+    font-weight: 300;
+    letter-spacing: -0.025em;
+    line-height: 1.08;
+  }
 }
 
 /* Fokus keyboard yang terlihat */

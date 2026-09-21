@@ -12,7 +12,7 @@ const icons = { GitHub: GitHubIcon, LinkedIn: LinkedInIcon, Instagram: Instagram
  */
 function IntroText({ text }: { text: string }) {
   return (
-    <p className="max-w-[54ch] text-lg leading-[2.1] text-text-secondary sm:text-xl">
+    <p className="max-w-[54ch] text-base leading-[1.95] text-text-secondary sm:text-lg">
       {text.split(/(\{[^}]+\})/g).map((part, i) =>
         part.startsWith("{") ? (
           <span
@@ -31,8 +31,8 @@ function IntroText({ text }: { text: string }) {
 
 export default function Hero() {
   return (
-    <section id="top" className="mx-auto max-w-270 px-6 pb-24 pt-20 md:px-10 md:pb-32 md:pt-28">
-      <div className="rise flex flex-col items-start gap-7 sm:flex-row sm:items-center sm:gap-9">
+    <section id="top" className="mx-auto max-w-3xl px-6 pb-20 pt-16">
+      <div className="rise flex flex-col items-start gap-6 sm:flex-row sm:items-center">
         <PixelReveal
           cover="/Myface.1.png"
           reveal="/profile1.png"
@@ -41,7 +41,7 @@ export default function Hero() {
 />
 
         <div>
-          <h1 className="display text-4xl sm:text-5xl">{site.name}</h1>
+          <h1 className="display text-3xl font-medium sm:text-4xl">{site.name}</h1>
           <div className="mt-4 flex items-center gap-4">
             {site.socials.map((s) => {
               const Icon = icons[s.label as keyof typeof icons];
@@ -64,12 +64,12 @@ export default function Hero() {
 
       {/* Separuh kedua judul sengaja dibuat pudar - hierarki lewat warna,
           bukan lewat bold. Ini tanda tangan visual referensi. */}
-      <h2 className="rise display mt-14 text-4xl sm:text-5xl md:text-6xl" style={{ animationDelay: "60ms" }}>
+      <h2 className="rise display mt-8 text-3xl font-normal sm:text-[2.5rem]" style={{ animationDelay: "60ms" }}>
         Full-Stack Developer{" "}
         <span className="text-text-secondary">&mdash; Laravel &amp; Next.js</span>
       </h2>
 
-      <div className="rise mt-9" style={{ animationDelay: "120ms" }}>
+      <div className="rise mt-6" style={{ animationDelay: "120ms" }}>
         <IntroText text={site.intro} />
       </div>
 
@@ -77,7 +77,7 @@ export default function Hero() {
           Dua pintu spesifik menunggu di section Contact. */}
       <a
         href="#work"
-        className="rise mt-11 inline-flex items-center gap-2.5 rounded-full bg-accent px-7 py-3.5 text-sm font-medium text-bg transition-opacity hover:opacity-85"
+        className="rise mt-8 inline-flex items-center gap-2.5 rounded-full bg-accent px-7 py-3.5 text-sm font-medium text-bg transition-opacity hover:opacity-85"
         style={{ animationDelay: "180ms" }}
       >
         See the work

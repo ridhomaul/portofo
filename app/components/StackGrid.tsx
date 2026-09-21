@@ -76,8 +76,8 @@ export default function StackGrid() {
   const row2 = flat.slice(mid);
 
   return (
-    <section className="pb-24 md:pb-32">
-      <h2 className="display mx-auto mb-12 max-w-270 px-6 text-3xl md:px-10 md:text-4xl">Stack</h2>
+    <section className="pb-20">
+      <h2 className="display mx-auto mb-10 max-w-3xl px-6 text-3xl">Stack</h2>
 
       <div className="relative left-1/2 w-screen -translate-x-1/2 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)] [-webkit-mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
         <div className="flex flex-col gap-4">

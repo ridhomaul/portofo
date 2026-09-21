@@ -2,12 +2,12 @@ import { experience } from "@/content/experience";
 
 export default function ExperienceList() {
   return (
-    <section id="experience" className="mx-auto max-w-270 px-6 pb-24 md:px-10 md:pb-32">
-      <h2 className="display mb-12 text-3xl md:text-4xl">Experience</h2>
+    <section id="experience" className="mx-auto max-w-3xl px-6 pb-20">
+      <h2 className="display mb-10 text-3xl">Experience</h2>
 
       <ol className="flex flex-col gap-11">
         {experience.map((r) => (
-          <li key={`${r.org}-${r.period}`} className="grid gap-2 sm:grid-cols-[170px_1fr] sm:gap-8">
+          <li key={`${r.org}-${r.period}`} className="grid gap-2 sm:grid-cols-[160px_1fr] sm:gap-6">
             <p className="pt-0.5 text-sm text-text-muted">{r.period}</p>
 
             <div>

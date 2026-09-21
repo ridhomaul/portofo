@@ -35,7 +35,7 @@ const doors = [
 
 export default function Contact() {
   return (
-    <section id="contact" className="mx-auto max-w-270 px-6 pb-24 md:px-10 md:pb-32">
+    <section id="contact" className="mx-auto max-w-3xl px-6 pb-20">
       <div className="grid gap-12 md:grid-cols-2 md:gap-16">
         <div>
           <h2 className="display text-4xl md:text-5xl">Let&apos;s work together.</h2>

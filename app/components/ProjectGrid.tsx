@@ -4,8 +4,8 @@ import { projects } from "@/content/projects";
 
 export default function ProjectGrid() {
   return (
-    <section id="work" className="mx-auto max-w-270 px-6 pb-24 md:px-10 md:pb-32">
-      <h2 className="display mb-12 text-3xl md:text-4xl">Projects</h2>
+    <section id="work" className="mx-auto max-w-3xl px-6 pb-20">
+      <h2 className="display mb-10 text-3xl">Projects</h2>
 
       <div className="grid gap-6 sm:grid-cols-2">
         {projects.map((p) => (
