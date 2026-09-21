@@ -1,4 +1,4 @@
-import Image from "next/image";
+import CertificateThumb from "./CertificateThumb";
 import { certifications } from "@/content/certifications";
 
 export default function Certifications() {
@@ -29,22 +29,7 @@ export default function Certifications() {
               <p className="mt-1 text-sm text-text-secondary">{c.issuer}</p>
               {c.credentialId && <p className="text-xs text-text-muted">{c.credentialId}</p>}
 
-              {c.image && (
-                <a
-                  href={c.image}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-3 block w-fit transition-opacity hover:opacity-80"
-                >
-                  <Image
-                    src={c.image}
-                    alt={`${c.title} certificate`}
-                    width={96}
-                    height={64}
-                    className="rounded-md border border-border object-cover"
-                  />
-                </a>
-              )}
+              {c.image && <CertificateThumb image={c.image} title={c.title} />}
             </div>
           </li>
         ))}
