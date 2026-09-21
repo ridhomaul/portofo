@@ -7,24 +7,26 @@ export default function ProjectGrid() {
     <section id="work" className="mx-auto max-w-3xl px-6 pb-20">
       <h2 className="display mb-10 text-3xl">Projects</h2>
 
-      <div className="grid gap-6 sm:grid-cols-2">
+      <div className="grid gap-5 sm:grid-cols-2">
         {projects.map((p) => (
           <article
             key={p.slug}
-            className="group flex flex-col overflow-hidden rounded-(--radius) border border-border"
+            className="group flex flex-col overflow-hidden rounded-(--radius) border border-dashed border-border"
           >
-            <div className="relative aspect-16/10 bg-surface">
-              <Image
-                src={p.image}
-                alt={`${p.name} screenshot`}
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-              />
+            <div className="p-2">
+              <div className="relative aspect-[2/1] overflow-hidden rounded-[10px] bg-surface">
+                <Image
+                  src={p.image}
+                  alt={`${p.name} screenshot`}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                />
+              </div>
             </div>
 
-            <div className="flex flex-1 flex-col gap-3 p-6">
+            <div className="flex flex-1 flex-col gap-1.5 px-5 pt-3 pb-5">
               <div className="flex items-start justify-between gap-3">
-                <h3 className="text-lg font-medium">{p.name}</h3>
+                <h3 className="text-base font-semibold">{p.name}</h3>
                 {p.inProgress && (
                   <span className="shrink-0 rounded-full border border-border px-2.5 py-1 text-[10px] tracking-wider text-text-muted">
                     IN PROGRESS
@@ -32,14 +34,14 @@ export default function ProjectGrid() {
                 )}
               </div>
 
-              <p className="text-sm text-text-secondary">{p.role}</p>
-              <p className="text-sm leading-relaxed text-text-secondary">{p.summary}</p>
+              <p className="text-xs font-medium text-text-primary">{p.role}</p>
+              <p className="line-clamp-3 text-[13px] leading-relaxed text-text-secondary">{p.summary}</p>
 
-              {p.outcome && <p className="text-sm leading-relaxed text-text-primary">{p.outcome}</p>}
+              {p.outcome && <p className="text-[13px] leading-relaxed text-text-primary">{p.outcome}</p>}
 
-              <ul className="mt-auto flex flex-wrap gap-1.5 pt-4">
+              <ul className="mt-auto flex flex-wrap gap-1.5 pt-3">
                 {p.tech.map((t) => (
-                  <li key={t} className="rounded-full border border-border px-3 py-1 text-[11px] text-text-muted">
+                  <li key={t} className="rounded-full border border-border px-2.5 py-0.5 text-[10px] text-text-muted">
                     {t}
                   </li>
                 ))}
