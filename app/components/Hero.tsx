@@ -6,7 +6,7 @@ import { site } from "@/content/site";
 const icons = { GitHub: GitHubIcon, LinkedIn: LinkedInIcon, Instagram: InstagramIcon } as const;
 
 /**
- * Chip dirender inline di dalam paragraf, seperti referensi â€” tapi dengan
+ * Chip dirender inline di dalam paragraf, seperti referensi - tapi dengan
  * align-middle dan line-height tetap, supaya baris tidak jadi renggang
  * tak rata setiap kali bertemu chip.
  */
@@ -62,11 +62,11 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Separuh kedua judul sengaja dibuat pudar â€” hierarki lewat warna,
+      {/* Separuh kedua judul sengaja dibuat pudar - hierarki lewat warna,
           bukan lewat bold. Ini tanda tangan visual referensi. */}
       <h2 className="rise display mt-14 text-4xl sm:text-5xl md:text-6xl" style={{ animationDelay: "60ms" }}>
         Full-Stack Developer{" "}
-        <span className="text-text-secondary">â€” Laravel &amp; Next.js</span>
+        <span className="text-text-secondary">&mdash; Laravel &amp; Next.js</span>
       </h2>
 
       <div className="rise mt-9" style={{ animationDelay: "120ms" }}>

@@ -67,6 +67,19 @@ body {
 }
 .rise { animation: rise .5s cubic-bezier(.4,0,.2,1) both; }
 
+/* Marquee dua baris di StackGrid. Track diduplikasi 2x di komponen,
+   jadi loop-nya berhenti tepat di translateX(-50%). */
+@keyframes marquee-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes marquee-right {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
+}
+.animate-marquee-left  { animation: marquee-left 32s linear infinite; }
+.animate-marquee-right { animation: marquee-right 32s linear infinite; }
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .rise { animation: none; }

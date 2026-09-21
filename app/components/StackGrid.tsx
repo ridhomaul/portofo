@@ -1,29 +1,90 @@
+import type { IconType } from "react-icons";
+import {
+  SiReact,
+  SiNextdotjs,
+  SiTypescript,
+  SiTailwindcss,
+  SiGreensock,
+  SiPhp,
+  SiLaravel,
+  SiPython,
+  SiPostgresql,
+  SiMysql,
+  SiSupabase,
+  SiDocker,
+  SiFigma,
+} from "react-icons/si";
 import { stack } from "@/content/site";
 
 /**
- * Grid statis berkelompok, bukan marquee berjalan.
- * Marquee membuat nama tool tidak sempat terbaca, dan ikon tanpa label
- * tidak menyampaikan informasi apa pun — hanya dekorasi yang makan tempat.
+ * "Premiere Pro" sengaja tidak dipetakan: react-icons/si (Simple Icons)
+ * versi terpasang tidak punya ikon Adobe sama sekali. Jatuh ke fallback
+ * titik di bawah, bukan crash seperti dulu waktu pakai lucide.
  */
-export default function StackGrid() {
-  return (
-    <section className="mx-auto max-w-270 px-6 pb-24 md:px-10 md:pb-32">
-      <h2 className="display mb-12 text-3xl md:text-4xl">Stack</h2>
+const ICONS: Record<string, IconType> = {
+  React: SiReact,
+  "Next.js": SiNextdotjs,
+  TypeScript: SiTypescript,
+  "Tailwind CSS": SiTailwindcss,
+  GSAP: SiGreensock,
+  PHP: SiPhp,
+  Laravel: SiLaravel,
+  Python: SiPython,
+  PostgreSQL: SiPostgresql,
+  MySQL: SiMysql,
+  Supabase: SiSupabase,
+  Docker: SiDocker,
+  Figma: SiFigma,
+};
 
-      <dl className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
-        {Object.entries(stack).map(([group, items]) => (
-          <div key={group}>
-            <dt className="mb-4 border-b border-border pb-3 text-sm text-text-muted">{group}</dt>
-            <dd>
-              <ul className="flex flex-col gap-2.5">
-                {items.map((t) => (
-                  <li key={t} className="text-sm text-text-secondary">{t}</li>
-                ))}
-              </ul>
-            </dd>
-          </div>
+function Chip({ name }: { name: string }) {
+  const Icon = ICONS[name];
+  return (
+    <span className="mx-2.5 inline-flex shrink-0 items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-sm text-text-secondary">
+      {Icon ? (
+        <Icon className="h-4 w-4 text-text-secondary" aria-hidden="true" />
+      ) : (
+        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-text-secondary" aria-hidden="true" />
+      )}
+      {name}
+    </span>
+  );
+}
+
+function MarqueeRow({ items, direction }: { items: string[]; direction: "left" | "right" }) {
+  // Track diduplikasi 2x supaya loop-nya mulus (animasi geser tepat 50%).
+  const looped = [...items, ...items];
+  return (
+    <div className="overflow-hidden motion-reduce:overflow-x-auto motion-reduce:[scrollbar-width:thin]">
+      <div
+        className={`flex w-max py-1 ${
+          direction === "left" ? "animate-marquee-left" : "animate-marquee-right"
+        } hover:[animation-play-state:paused] motion-reduce:animate-none`}
+      >
+        {looped.map((name, i) => (
+          <Chip key={`${name}-${i}`} name={name} />
         ))}
-      </dl>
+      </div>
+    </div>
+  );
+}
+
+export default function StackGrid() {
+  const flat = Object.values(stack).flat();
+  const mid = Math.ceil(flat.length / 2);
+  const row1 = flat.slice(0, mid);
+  const row2 = flat.slice(mid);
+
+  return (
+    <section className="pb-24 md:pb-32">
+      <h2 className="display mx-auto mb-12 max-w-270 px-6 text-3xl md:px-10 md:text-4xl">Stack</h2>
+
+      <div className="relative left-1/2 w-screen -translate-x-1/2 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)] [-webkit-mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+        <div className="flex flex-col gap-4">
+          <MarqueeRow items={row1} direction="left" />
+          <MarqueeRow items={row2} direction="right" />
+        </div>
+      </div>
     </section>
   );
 }
