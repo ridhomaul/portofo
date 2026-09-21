@@ -20,7 +20,7 @@ export const featured: Project = {
     "Content operations platform for social media teams: Kanban planning, multi-tenancy, and role-based access.",
   outcome: "TODO — dipakai berapa tim? berapa konten dikelola? memangkas waktu apa?",
   tech: ["Laravel 12", "PHP 8.4", "PostgreSQL", "Tailwind"],
-  image: "/projects/milenner.png",   // TODO ganti screenshot asli
+  image: "/projects/m.1.png",   // TODO ganti screenshot asli
 };
 
 export const projects: Project[] = [
