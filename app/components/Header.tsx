@@ -20,7 +20,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-bg/80 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-[1080px] items-center justify-between px-6 md:px-10">
+      <div className="mx-auto flex h-16 max-w-270 items-center justify-between px-6 md:px-10">
         <a href="#top" className="display text-lg tracking-tight" aria-label={site.name}>
           {site.initials}
         </a>
@@ -45,8 +45,8 @@ export default function Header() {
             className="rounded-sm p-2 text-text-secondary transition-colors hover:text-text-primary"
           >
             {mounted && resolvedTheme === "dark"
-              ? <Sun className="h-[18px] w-[18px]" />
-              : <Moon className="h-[18px] w-[18px]" />}
+              ? <Sun className="h-4.5 w-4.5" />
+              : <Moon className="h-4.5 w-4.5" />}
           </button>
         </nav>
       </div>

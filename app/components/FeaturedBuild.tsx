@@ -4,9 +4,9 @@ import { featured } from "@/content/projects";
 
 export default function FeaturedBuild() {
   return (
-    <section className="mx-auto max-w-[1080px] px-6 pb-24 md:px-10 md:pb-32">
-      <article className="grid overflow-hidden rounded-[var(--radius)] border border-border md:grid-cols-2">
-        <div className="relative aspect-[4/3] bg-surface md:aspect-auto md:min-h-[340px]">
+    <section className="mx-auto max-w-270 px-6 pb-24 md:px-10 md:pb-32">
+      <article className="grid overflow-hidden rounded-(--radius) border border-border md:grid-cols-2">
+        <div className="relative aspect-4/3 bg-surface md:aspect-auto md:min-h-85">
           <Image src={featured.image} alt={`${featured.name} screenshot`} fill className="object-cover" />
         </div>
 

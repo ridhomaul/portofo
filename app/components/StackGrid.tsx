@@ -7,7 +7,7 @@ import { stack } from "@/content/site";
  */
 export default function StackGrid() {
   return (
-    <section className="mx-auto max-w-[1080px] px-6 pb-24 md:px-10 md:pb-32">
+    <section className="mx-auto max-w-270 px-6 pb-24 md:px-10 md:pb-32">
       <h2 className="display mb-12 text-3xl md:text-4xl">Stack</h2>
 
       <dl className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">

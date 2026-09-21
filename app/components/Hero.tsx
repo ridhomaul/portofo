@@ -6,7 +6,7 @@ import { site } from "@/content/site";
 const icons = { GitHub: GitHubIcon, LinkedIn: LinkedInIcon, Instagram: InstagramIcon } as const;
 
 /**
- * Chip dirender inline di dalam paragraf, seperti referensi — tapi dengan
+ * Chip dirender inline di dalam paragraf, seperti referensi â€” tapi dengan
  * align-middle dan line-height tetap, supaya baris tidak jadi renggang
  * tak rata setiap kali bertemu chip.
  */
@@ -31,14 +31,14 @@ function IntroText({ text }: { text: string }) {
 
 export default function Hero() {
   return (
-    <section id="top" className="mx-auto max-w-[1080px] px-6 pb-24 pt-20 md:px-10 md:pb-32 md:pt-28">
+    <section id="top" className="mx-auto max-w-270 px-6 pb-24 pt-20 md:px-10 md:pb-32 md:pt-28">
       <div className="rise flex flex-col items-start gap-7 sm:flex-row sm:items-center sm:gap-9">
         <PixelReveal
-          cover="/avatar.png"          /* TODO ilustrasi / avatar */
-          reveal="/profile1.png"       /* foto asli — kompres dulu ke WebP */
+          cover="/Myface.1.png"
+          reveal="/profile1.png"
           alt={site.name}
           className="w-32 shrink-0 sm:w-40"
-        />
+/>
 
         <div>
           <h1 className="display text-4xl sm:text-5xl">{site.name}</h1>
@@ -62,11 +62,11 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Separuh kedua judul sengaja dibuat pudar — hierarki lewat warna,
+      {/* Separuh kedua judul sengaja dibuat pudar â€” hierarki lewat warna,
           bukan lewat bold. Ini tanda tangan visual referensi. */}
       <h2 className="rise display mt-14 text-4xl sm:text-5xl md:text-6xl" style={{ animationDelay: "60ms" }}>
         Full-Stack Developer{" "}
-        <span className="text-text-secondary">— Laravel &amp; Next.js</span>
+        <span className="text-text-secondary">â€” Laravel &amp; Next.js</span>
       </h2>
 
       <div className="rise mt-9" style={{ animationDelay: "120ms" }}>
@@ -86,4 +86,5 @@ export default function Hero() {
     </section>
   );
 }
+
 

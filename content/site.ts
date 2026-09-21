@@ -12,8 +12,8 @@ export const site = {
   status: "Open to work",
   quote: "Systems are only as good as the people who use them.",
 
-  email: "GANTI@email.kamu",              // TODO wajib
-  whatsapp: "62812XXXXXXXX",              // TODO verifikasi — nomor ID mulai 8 setelah 62
+  email: "maulridho04@gmail.com",              // TODO wajib
+  whatsapp: "6289618775467",              // TODO verifikasi — nomor ID mulai 8 setelah 62
   cv: "/CV-Ridho-Maulana.pdf",
   url: "https://GANTI-DOMAIN-KAMU",       // TODO untuk metadata & JSON-LD
 

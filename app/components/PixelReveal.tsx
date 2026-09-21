@@ -24,6 +24,12 @@ type Props = {
   className?: string;
 };
 
+// Fungsi pseudo-random deterministik murni agar render bersifat idempoten.
+function pseudoRandom(seed: number) {
+  const x = Math.sin(seed * 12.9898 + 78.233) * 43758.5453;
+  return x - Math.floor(x);
+}
+
 export default function PixelReveal({
   cover,
   reveal,
@@ -35,13 +41,13 @@ export default function PixelReveal({
 }: Props) {
   const [on, setOn] = useState(false);
 
-  // Delay dikunci sekali per mount supaya polanya tidak berubah tiap render.
+  // Delay dihitung secara deterministik agar polanya konsisten dan render murni.
   const tiles = useMemo(
     () =>
       Array.from({ length: grid * grid }, (_, i) => ({
         x: i % grid,
         y: Math.floor(i / grid),
-        delay: Math.round(Math.random() * stagger),
+        delay: Math.round(pseudoRandom(i) * stagger),
       })),
     [grid, stagger]
   );
@@ -64,7 +70,7 @@ export default function PixelReveal({
           <span
             key={i}
             aria-hidden
-            className="block will-change-[opacity,transform] motion-reduce:!opacity-0 motion-reduce:!transition-none"
+            className="block will-change-[opacity,transform] motion-reduce:opacity-0! motion-reduce:transition-none!"
             style={{
               backgroundImage: `url(${cover})`,
               // diperbesar N kali sehingga seukuran wadah

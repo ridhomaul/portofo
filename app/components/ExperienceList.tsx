@@ -2,7 +2,7 @@ import { experience } from "@/content/experience";
 
 export default function ExperienceList() {
   return (
-    <section id="experience" className="mx-auto max-w-[1080px] px-6 pb-24 md:px-10 md:pb-32">
+    <section id="experience" className="mx-auto max-w-270 px-6 pb-24 md:px-10 md:pb-32">
       <h2 className="display mb-12 text-3xl md:text-4xl">Experience</h2>
 
       <ol className="flex flex-col gap-11">

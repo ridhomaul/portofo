@@ -35,7 +35,7 @@ const doors = [
 
 export default function Contact() {
   return (
-    <section id="contact" className="mx-auto max-w-[1080px] px-6 pb-24 md:px-10 md:pb-32">
+    <section id="contact" className="mx-auto max-w-270 px-6 pb-24 md:px-10 md:pb-32">
       <div className="grid gap-12 md:grid-cols-2 md:gap-16">
         <div>
           <h2 className="display text-4xl md:text-5xl">Let&apos;s work together.</h2>
@@ -53,10 +53,10 @@ export default function Contact() {
               <a
                 href={href}
                 {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                className="flex items-center gap-4 rounded-[var(--radius)] border border-border p-5 transition-colors hover:border-text-secondary"
+                className="flex items-center gap-4 rounded-(--radius) border border-border p-5 transition-colors hover:border-text-secondary"
               >
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border">
-                  <Icon className="h-[18px] w-[18px] text-text-secondary" />
+                  <Icon className="h-4.5 w-4.5 text-text-secondary" />
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block text-xs text-text-muted">{kicker}</span>
