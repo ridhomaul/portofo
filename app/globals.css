@@ -98,10 +98,10 @@ body {
   mix-blend-mode: normal;
 }
 ::view-transition-new(root) {
-  animation: curtain-open 700ms cubic-bezier(.65, 0, .35, 1);
+  animation: curtain-open 450ms cubic-bezier(.65, 0, .35, 1);
 }
 @keyframes curtain-open {
-  from { clip-path: inset(0 50% 0 50%); }
+  from { clip-path: inset(0 100% 0 0); }
   to   { clip-path: inset(0 0 0 0); }
 }
 
