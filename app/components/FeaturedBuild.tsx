@@ -6,8 +6,10 @@ export default function FeaturedBuild() {
   return (
     <section className="mx-auto max-w-3xl px-6 pb-20">
       <article className="grid overflow-hidden rounded-(--radius) border border-dashed border-border md:grid-cols-[5fr_7fr]">
-        <div className="relative aspect-4/3 bg-surface md:aspect-auto">
-          <Image src={featured.image} alt={`${featured.name} screenshot`} fill className="object-cover" />
+        <div className="flex items-center justify-center bg-black/[0.03] p-6 dark:bg-white/[0.04] md:p-8">
+          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg border border-border shadow-sm">
+            <Image src={featured.image} alt={`${featured.name} screenshot`} fill className="object-cover object-top" />
+          </div>
         </div>
 
         <div className="flex flex-col justify-center gap-3 p-7 md:p-8">
