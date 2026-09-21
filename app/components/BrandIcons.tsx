@@ -1,4 +1,4 @@
-﻿type P = { className?: string };
+type P = { className?: string };
 
 export function GitHubIcon({ className }: P) {
   return (

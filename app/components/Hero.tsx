@@ -1,4 +1,4 @@
-﻿import { ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { GitHubIcon, LinkedInIcon, InstagramIcon } from "./BrandIcons";
 import PixelReveal from "./PixelReveal";
 import { site } from "@/content/site";
@@ -6,7 +6,7 @@ import { site } from "@/content/site";
 const icons = { GitHub: GitHubIcon, LinkedIn: LinkedInIcon, Instagram: InstagramIcon } as const;
 
 /**
- * Chip dirender inline di dalam paragraf, seperti referensi â€” tapi dengan
+ * Chip dirender inline di dalam paragraf, seperti referensi — tapi dengan
  * align-middle dan line-height tetap, supaya baris tidak jadi renggang
  * tak rata setiap kali bertemu chip.
  */
@@ -35,7 +35,7 @@ export default function Hero() {
       <div className="rise flex flex-col items-start gap-7 sm:flex-row sm:items-center sm:gap-9">
         <PixelReveal
           cover="/avatar.png"          /* TODO ilustrasi / avatar */
-          reveal="/profile1.png"       /* foto asli â€” kompres dulu ke WebP */
+          reveal="/profile1.png"       /* foto asli — kompres dulu ke WebP */
           alt={site.name}
           className="w-32 shrink-0 sm:w-40"
         />
@@ -62,11 +62,11 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Separuh kedua judul sengaja dibuat pudar â€” hierarki lewat warna,
+      {/* Separuh kedua judul sengaja dibuat pudar — hierarki lewat warna,
           bukan lewat bold. Ini tanda tangan visual referensi. */}
       <h2 className="rise display mt-14 text-4xl sm:text-5xl md:text-6xl" style={{ animationDelay: "60ms" }}>
         Full-Stack Developer{" "}
-        <span className="text-text-secondary">â€” Laravel &amp; Next.js</span>
+        <span className="text-text-secondary">— Laravel &amp; Next.js</span>
       </h2>
 
       <div className="rise mt-9" style={{ animationDelay: "120ms" }}>
