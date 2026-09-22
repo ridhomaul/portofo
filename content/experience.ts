@@ -22,7 +22,7 @@ export const experience: Role[] = [
     title: "Digital Media Specialist",
     org: "MileniaNews",
     place: "Jakarta, Indonesia",
-    note: "TODO — angka konsisten. Contoh: led production of 2,000+ pieces across two years.",
+    note: "Led production of 2,000+ pieces across two years.",
   },
   {
     period: "2025",

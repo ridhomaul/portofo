@@ -32,8 +32,7 @@ export const featured: Project = {
   role: "System Architect & Sole Developer",
   summary:
     "Content operations platform for social media teams: Kanban planning, multi-tenancy, and role-based access.",
-  outcome: "TODO — dipakai berapa tim? berapa konten dikelola? memangkas waktu apa?",
-  tech: ["Laravel 12", "PHP 8.4", "PostgreSQL", "Tailwind"],
+  tech: ["Next.js 16", "React 19", "TypeScript", "Supabase"],
   image: "/projects/milenner.png",
 };
 
@@ -53,12 +52,11 @@ export const projects: Project[] = [
     role: "Content Lead & Editor",
     summary:
       "Editorial calendar and production pipeline for a digital newsroom, from pre-production through distribution.",
-    outcome: "TODO — satu angka yang konsisten. Pilih 600 atau 2000, jangan dua-duanya.",
     tech: ["Editorial Planning", "Premiere Pro", "Analytics"],
     image: "/projects/milenianews.png",
     imageFit: "contain",
     caseStudy: {
-      intro: "TODO — satu atau dua kalimat pembuka: lingkup kerja dan peran di MileniaNews.",
+      intro: "Responsible for leading content strategy, editorial planning, and quality control at MileniaNews to deliver engaging and well-structured media publication.",
       sections: [
         {
           title: "Content Planning & Editing",
@@ -91,13 +89,13 @@ export const projects: Project[] = [
           images: [
             {
               src: "/projects/milenianews/podcast.png",
-              alt: "TODO — screenshot atau foto produksi podcast Kaum Milenial",
+              alt: "",
             },
           ],
-          description: "TODO — jelaskan peran di produksi podcast Kaum Milenial dalam 2-3 kalimat.",
+          description: "Served as a cameraperson responsible for visual framing and video recording during the production of the Kaum Milenial podcast. Managed multi-angle camera setups and studio lighting to maintain high visual standards. Collaborated closely with the production team to deliver consistent, professional-quality video content.",
           points: [
-            "TODO — pencapaian terukur pertama.",
-            "TODO — pencapaian terukur kedua.",
+            "Successfully produced over [10] podcast episodes with consistent studio-quality visuals and framing.",
+            "Maintained 100% on-time production schedules while managing multi-angle camera operations efficiently.",
           ],
         },
       ],
@@ -116,12 +114,11 @@ export const projects: Project[] = [
   {
     // TODO — isi seluruh entri ini, lalu ganti screenshot placeholder
     // di public/projects/todo-project.png dengan yang asli.
-    slug: "todo-project",
-    name: "TODO — nama project",
-    role: "TODO — peranmu",
-    summary: "TODO — satu kalimat: masalah apa yang diselesaikan",
-    tech: ["TODO", "TODO", "TODO"],
-    image: "/projects/todo-project.png",
-    href: "TODO — link demo atau repo (hapus baris ini kalau tidak ada)",
+    slug: "sistem-hunian",
+    name: "SPMS Hunian",
+    role: "Pentester",
+    summary: "Color Monitoring and Management System Developed by the South Sumatra Correctional Facility",
+    tech: ["Laravel 12", "PHP 8.4", "PostgreSQL"],
+    image: "/projects/sistem-hunian.png",
   },
 ];
