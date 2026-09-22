@@ -6,7 +6,7 @@ export default function FeaturedBuild() {
   return (
     <section className="mx-auto max-w-3xl px-6 pb-20">
       <article className="grid overflow-hidden rounded-(--radius) border border-dashed border-border md:grid-cols-[5fr_7fr]">
-        <div className="flex items-center justify-center bg-black/[0.03] p-5 dark:bg-white/[0.04] md:p-6">
+        <div className="flex items-center justify-center bg-black/3 p-5 dark:bg-white/4 md:p-6">
           <div className="w-full overflow-hidden rounded-lg border border-border shadow-sm">
             <Image
               src={featured.image}
