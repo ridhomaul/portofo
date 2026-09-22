@@ -8,9 +8,15 @@ import CaseStudySection from "@/app/components/CaseStudySection";
 const allProjects: Project[] = [featured, ...projects];
 
 // Static export: hanya render halaman untuk project yang benar-benar
-// punya case study, dan tolak slug lain sama sekali saat build.
-export const dynamicParams = false;
-
+// punya case study. `output: "export"` sendiri sudah otomatis
+// menolak param lain di luar generateStaticParams() (tidak ada server
+// untuk fallback rendering), jadi `dynamicParams = false` semestinya
+// redundan di sini — dan sengaja TIDAK diekspor: di next@14.2.x,
+// mengekspor dynamicParams=false pada app-router page dinamis dengan
+// output:export membuat next-dev-server salah menghitung fallbackMode
+// (jadi `false` alih-alih string "static"), sehingga SETIAP request ke
+// halaman ini selalu 500 di `next dev` walau generateStaticParams ada
+// dan `next build` sukses. Lihat catatan commit untuk detail lengkap.
 export function generateStaticParams() {
   return allProjects.filter((p) => p.caseStudy).map((p) => ({ slug: p.slug }));
 }
