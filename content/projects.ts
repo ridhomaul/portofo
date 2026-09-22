@@ -63,14 +63,24 @@ export const projects: Project[] = [
           icon: "Newspaper",
           images: [
             {
-              src: "/projects/milenianews/content-planning.png",
-              alt: "TODO — screenshot kalender editorial atau alur produksi konten",
+              src: "/projects/milenianews/news-1.png",
+              alt: "Four MileniaNews Instagram posts covering business, crime, entertainment, and sports news",
+            },
+            {
+              src: "/projects/milenianews/news-2.png",
+              alt: "Four MileniaNews Instagram posts covering public services, politics, awards, and lifestyle",
+            },
+            {
+              src: "/projects/milenianews/news-3.png",
+              alt: "Four MileniaNews Instagram posts covering pop culture, international politics, and social issues",
             },
           ],
-          description: "TODO — jelaskan proses perencanaan dan penyuntingan konten dalam 2-3 kalimat.",
+          description:
+            "Planned and edited daily news posts for MileniaNews' social channels: choosing the angle, writing the headline, and shaping every post for the feed.",
           points: [
-            "TODO — pencapaian terukur pertama.",
-            "TODO — pencapaian terukur kedua.",
+            "Covered business, politics, entertainment, sports, and pop culture within one consistent visual system.",
+            "Led headlines with the hard number or the conflict, so each post reads in a single glance.",
+            "2,000+ posts published, from internship through a full-time role.",
           ],
         },
         {
@@ -78,7 +88,7 @@ export const projects: Project[] = [
           icon: "Mic",
           images: [
             {
-              src: "/projects/milenianews/podcast-kaum-milenial.png",
+              src: "/projects/milenianews/podcast.png",
               alt: "TODO — screenshot atau foto produksi podcast Kaum Milenial",
             },
           ],
