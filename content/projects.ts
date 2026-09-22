@@ -19,6 +19,7 @@ export type Project = {
   outcome?: string;       // HASIL terukur. Kosongkan kalau belum ada — jangan dikarang.
   tech: string[];
   image: string;          // screenshot ASLI. Bukan foto stok.
+  imageFit?: "cover" | "contain"; // default "cover". "contain" untuk logo di atas latar terang.
   href?: string;
   caseStudy?: CaseStudy;
   inProgress?: boolean;
@@ -55,6 +56,7 @@ export const projects: Project[] = [
     outcome: "TODO — satu angka yang konsisten. Pilih 600 atau 2000, jangan dua-duanya.",
     tech: ["Editorial Planning", "Premiere Pro", "Analytics"],
     image: "/projects/milenianews.png",
+    imageFit: "contain",
     caseStudy: {
       intro: "TODO — satu atau dua kalimat pembuka: lingkup kerja dan peran di MileniaNews.",
       sections: [
@@ -110,5 +112,16 @@ export const projects: Project[] = [
     tech: ["Next.js 14", "Tailwind v4", "TypeScript"],
     image: "/projects/portfolio.png",     // TODO
     href: "https://github.com/ridhomaul",
+  },
+  {
+    // TODO — isi seluruh entri ini, lalu ganti screenshot placeholder
+    // di public/projects/todo-project.png dengan yang asli.
+    slug: "todo-project",
+    name: "TODO — nama project",
+    role: "TODO — peranmu",
+    summary: "TODO — satu kalimat: masalah apa yang diselesaikan",
+    tech: ["TODO", "TODO", "TODO"],
+    image: "/projects/todo-project.png",
+    href: "TODO — link demo atau repo (hapus baris ini kalau tidak ada)",
   },
 ];

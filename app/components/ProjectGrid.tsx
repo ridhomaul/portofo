@@ -15,14 +15,26 @@ export default function ProjectGrid() {
             className="group flex flex-col overflow-hidden rounded-(--radius) border border-dashed border-border"
           >
             <div className="p-2">
-              <div className="relative aspect-2/1 overflow-hidden rounded-[10px] bg-surface">
-                <Image
-                  src={p.image}
-                  alt={`${p.name} screenshot`}
-                  fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                />
-              </div>
+              {p.imageFit === "contain" ? (
+                <div className="flex aspect-2/1 items-center justify-center overflow-hidden rounded-[10px] bg-white p-6">
+                  <Image
+                    src={p.image}
+                    alt={`${p.name} logo`}
+                    width={1600}
+                    height={1000}
+                    className="h-full w-full object-contain"
+                  />
+                </div>
+              ) : (
+                <div className="relative aspect-2/1 overflow-hidden rounded-[10px] bg-surface">
+                  <Image
+                    src={p.image}
+                    alt={`${p.name} screenshot`}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="flex flex-1 flex-col gap-1.5 px-5 pt-3 pb-5">
