@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { projects } from "@/content/projects";
 
@@ -47,15 +48,27 @@ export default function ProjectGrid() {
                 ))}
               </ul>
 
-              {p.href && (
-                <a
-                  href={p.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-4 inline-flex items-center gap-1.5 border-t border-border pt-4 text-xs tracking-wider text-text-secondary transition-colors hover:text-text-primary"
-                >
-                  VISIT SITE <ArrowUpRight className="h-3.5 w-3.5" />
-                </a>
+              {(p.caseStudy || p.href) && (
+                <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-4">
+                  {p.caseStudy && (
+                    <Link
+                      href={`/projects/${p.slug}`}
+                      className="inline-flex items-center gap-1.5 text-xs tracking-wider text-text-secondary transition-colors hover:text-text-primary"
+                    >
+                      READ CASE STUDY <ArrowUpRight className="h-3.5 w-3.5" />
+                    </Link>
+                  )}
+                  {p.href && (
+                    <a
+                      href={p.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs tracking-wider text-text-secondary transition-colors hover:text-text-primary"
+                    >
+                      VISIT SITE <ArrowUpRight className="h-3.5 w-3.5" />
+                    </a>
+                  )}
+                </div>
               )}
             </div>
           </article>

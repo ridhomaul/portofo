@@ -8,9 +8,9 @@ import { site } from "@/content/site";
 // Contact SENGAJA ada di navigasi. Itu tujuan akhir seluruh situs —
 // jangan sampai orang harus scroll sampai habis untuk menemukannya.
 const nav = [
-  { label: "Projects", href: "#work" },
-  { label: "Experience", href: "#experience" },
-  { label: "Contact", href: "#contact" },
+  { label: "Projects", href: "/#work" },
+  { label: "Experience", href: "/#experience" },
+  { label: "Contact", href: "/#contact" },
 ];
 
 const emptySubscribe = () => () => {};
@@ -46,7 +46,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-bg/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-3xl items-center justify-between px-6">
-        <a href="#top" className="display text-lg tracking-tight" aria-label={site.name}>
+        <a href="/#top" className="display text-lg tracking-tight" aria-label={site.name}>
           {site.initials}
         </a>
 

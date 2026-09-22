@@ -11,8 +11,8 @@ export default function FeaturedBuild() {
             <Image
               src={featured.image}
               alt={`${featured.name} screenshot`}
-              width={1200}
-              height={900}
+              width={1252}
+              height={600}
               className="h-auto w-full"
             />
           </div>
@@ -45,7 +45,7 @@ export default function FeaturedBuild() {
 
           {(featured.caseStudy || featured.href) && (
             <a
-              href={featured.caseStudy ?? featured.href}
+              href={featured.caseStudy ? `/projects/${featured.slug}` : featured.href}
               className="mt-1 inline-flex w-fit items-center gap-2 rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-bg transition-opacity hover:opacity-85"
             >
               {featured.caseStudy ? "Read case study" : "Visit site"}
