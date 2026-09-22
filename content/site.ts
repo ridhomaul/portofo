@@ -15,7 +15,7 @@ export const site = {
   email: "maulridho04@gmail.com",              // TODO wajib
   whatsapp: "6289618775467",              // TODO verifikasi — nomor ID mulai 8 setelah 62
   cv: "/CV-Ridho-Maulana.pdf",
-  url: "https://GANTI-DOMAIN-KAMU",       // TODO untuk metadata & JSON-LD
+  url: "https://ridhomaulana.netlify.app",
 
   socials: [
     { label: "GitHub",    href: "https://github.com/ridhomaul" },
