@@ -64,7 +64,7 @@ export default function Hero() {
 
       {/* Separuh kedua judul sengaja dibuat pudar - hierarki lewat warna,
           bukan lewat bold. Ini tanda tangan visual referensi. */}
-      <h2 className="rise display mt-8 text-2xl font-normal sm:text-[2.5rem]" style={{ animationDelay: "60ms" }}>
+      <h2 className="rise display mt-8 text-2xl font-normal sm:text-[2rem]" style={{ animationDelay: "60ms" }}>
         Full-Stack Web Developer{" "}
         <span className="text-text-secondary">&mdash; Laravel &amp; Next.js</span>
       </h2>
