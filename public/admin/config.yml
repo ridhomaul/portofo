@@ -1,6 +1,6 @@
 backend:
   name: github
-  repo: ridhomaul/ridhomaul.github.io
+  repo: ridhomaul/portofo
   branch: main
 
 # Default global (dipakai kalau sebuah field tidak override sendiri).
