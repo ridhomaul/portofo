@@ -1,0 +1,36 @@
+backend:
+  name: github
+  repo: ridhomaul/ridhomaul.github.io
+  branch: main
+
+# Default global (dipakai kalau sebuah field tidak override sendiri).
+media_folder: "public/projects"
+public_folder: "/projects"
+
+# FASE 1: hanya koleksi certifications. Experience, projects, dan
+# featured/caseStudy sengaja belum ada di sini — menyusul di fase
+# berikutnya setelah autentikasi terbukti jalan.
+collections:
+  - name: "certifications"
+    label: "Certifications"
+    files:
+      - name: "certifications"
+        label: "Certifications"
+        file: "content/data/certifications.json"
+        fields:
+          - name: "certifications"
+            label: "Certifications"
+            widget: "list"
+            summary: "{{fields.title}} — {{fields.issuer}}"
+            fields:
+              - { label: "Date", name: "date", widget: "string", hint: "Contoh: Mar 2026" }
+              - { label: "Title", name: "title", widget: "string" }
+              - { label: "Issuer", name: "issuer", widget: "string" }
+              - { label: "Credential ID", name: "credentialId", widget: "string", required: false }
+              - { label: "Verification URL", name: "url", widget: "string", required: false }
+              - label: "Image"
+                name: "image"
+                widget: "image"
+                required: false
+                media_folder: "/public/certificates"
+                public_folder: "/certificates"
