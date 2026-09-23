@@ -11,10 +11,10 @@ public_folder: "/projects"
 # featured/caseStudy sengaja belum ada di sini — menyusul di fase
 # berikutnya setelah autentikasi terbukti jalan.
 collections:
-  - name: "certifications"
+  - name: "certifications_collection"
     label: "Certifications"
     files:
-      - name: "certifications"
+      - name: "certifications_file"
         label: "Certifications"
         file: "content/data/certifications.json"
         fields:
