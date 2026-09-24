@@ -8,6 +8,12 @@ import NetlifyAuthenticator from "netlify-auth-providers";
 // menyertai perubahan ini.
 const TOKEN_STORAGE_KEY = "admin_github_token";
 
+// Site ID Netlify (bukan domain) — sama di production maupun semua
+// branch/deploy preview, jadi aman dipakai di mana pun tanpa deteksi
+// host. Wajib: netlify-auth-providers meng-crash di constructor kalau
+// dipanggil tanpa argumen sama sekali (lihat catatan di handleLogin).
+const NETLIFY_SITE_ID = "34b7bd30-0f88-4ed0-8a48-ab34383e7724";
+
 type GithubUser = {
   login: string;
   name: string | null;
@@ -72,15 +78,27 @@ export default function AdminPage() {
 
   const handleLogin = () => {
     setError(null);
-    const authenticator = new NetlifyAuthenticator();
-    authenticator.authenticate({ provider: "github", scope: "repo" }, (err, data) => {
-      if (err || !data?.token) {
-        setError(err ? err.toString() : "Login tidak mengembalikan token");
-        return;
-      }
-      window.localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
-      setToken(data.token);
-    });
+    try {
+      // netlify-auth-providers' constructor does `this.site_id =
+      // config.site_id` with no default for `config`, so calling
+      // `new NetlifyAuthenticator()` with zero arguments throws
+      // synchronously ("Cannot read properties of undefined (reading
+      // 'site_id')") before its own host-based auto-detection ever
+      // runs — that logic lives inside authenticate(), never reached.
+      // Passing site_id explicitly avoids the crash and works
+      // identically on every URL this site is served from.
+      const authenticator = new NetlifyAuthenticator({ site_id: NETLIFY_SITE_ID });
+      authenticator.authenticate({ provider: "github", scope: "repo" }, (err, data) => {
+        if (err || !data?.token) {
+          setError(err ? err.toString() : "Login tidak mengembalikan token");
+          return;
+        }
+        window.localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
+        setToken(data.token);
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Gagal memulai proses login");
+    }
   };
 
   const handleLogout = () => {
