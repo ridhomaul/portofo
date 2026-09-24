@@ -9,6 +9,6 @@ export type Certification = {
   image?: string;        // path di public/certificates/
 };
 
-// Diedit lewat Decap CMS (/admin) -> commit ke content/data/certifications.json.
+// Diedit lewat /admin -> commit ke content/data/certifications.json.
 // File ini cuma loader tipis supaya komponen yang sudah ada tidak perlu berubah.
 export const certifications: Certification[] = data.certifications;
