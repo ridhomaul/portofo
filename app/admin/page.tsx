@@ -109,6 +109,80 @@ async function saveCertificationsFile(
   return data.content.sha;
 }
 
+const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
+
+// Nama file dari slug judul, huruf kecil semua, tanpa spasi — server
+// Linux membedakan huruf besar-kecil, jadi ini harus konsisten.
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function getFileExtension(filename: string): string {
+  const match = /\.([a-zA-Z0-9]+)$/.exec(filename);
+  return match ? match[1].toLowerCase() : "";
+}
+
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string; // "data:<mime>;base64,<data>"
+      resolve(result.split(",")[1] ?? "");
+    };
+    reader.onerror = () => reject(reader.error ?? new Error("Gagal membaca file gambar"));
+    reader.readAsDataURL(file);
+  });
+}
+
+// null berarti file belum ada di repo (404) -> boleh dibuat tanpa sha.
+// Error lain (403, jaringan, dst) dilempar apa adanya.
+async function getExistingFileSha(token: string, path: string): Promise<string | null> {
+  const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${path}?ref=${GITHUB_BRANCH}`;
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+  if (res.status === 404) return null;
+  if (!res.ok) {
+    throw new Error(`GET contents/${path} -> HTTP ${res.status}`);
+  }
+  const data = (await res.json()) as GithubContentsGetResponse;
+  return data.sha;
+}
+
+async function uploadCertificateImage(
+  token: string,
+  file: File,
+  path: string,
+  message: string
+): Promise<void> {
+  const existingSha = await getExistingFileSha(token, path);
+  const base64 = await fileToBase64(file);
+
+  const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${path}`;
+  const res = await fetch(url, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/vnd.github+json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      message,
+      content: base64,
+      branch: GITHUB_BRANCH,
+      ...(existingSha ? { sha: existingSha } : {}),
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`PUT contents/${path} -> HTTP ${res.status}`);
+  }
+}
+
 type CertificationForm = {
   date: string;
   title: string;
@@ -171,7 +245,20 @@ export default function AdminPage() {
   const [saveStatus, setSaveStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [conflict, setConflict] = useState(false);
 
+  // TAHAP 3B: gambar sertifikat. `currentImage` = image milik entri
+  // yang sedang diedit (kalau ada) — biarkan kosong berarti tidak diganti.
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
+  const [currentImage, setCurrentImage] = useState<string | null>(null);
+
   const busy = saving || deletingIndex !== null;
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
 
   // localStorage tidak ada saat prerender static export, jadi baru
   // dibaca setelah mount di browser.
@@ -280,6 +367,15 @@ export default function AdminPage() {
     setUser(null);
   };
 
+  const resetForm = () => {
+    setForm(EMPTY_FORM);
+    setEditingIndex(null);
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    setFileError(null);
+    setCurrentImage(null);
+  };
+
   const handleEditClick = (index: number) => {
     const cert = certifications?.[index];
     if (!cert) return;
@@ -291,14 +387,47 @@ export default function AdminPage() {
       credentialId: cert.credentialId ?? "",
       url: cert.url ?? "",
     });
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    setFileError(null);
+    setCurrentImage(cert.image ?? null);
     setFormError(null);
     setSaveStatus(null);
   };
 
   const handleCancelEdit = () => {
-    setEditingIndex(null);
-    setForm(EMPTY_FORM);
+    resetForm();
     setFormError(null);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    setFileError(null);
+
+    if (!file) {
+      setSelectedFile(null);
+      setPreviewUrl(null);
+      return;
+    }
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      setFileError("Format gambar harus PNG, JPG, atau WEBP.");
+      e.target.value = "";
+      setSelectedFile(null);
+      setPreviewUrl(null);
+      return;
+    }
+
+    if (file.size > MAX_IMAGE_BYTES) {
+      setFileError(`File ${(file.size / (1024 * 1024)).toFixed(1)} MB, maksimal 2 MB.`);
+      e.target.value = "";
+      setSelectedFile(null);
+      setPreviewUrl(null);
+      return;
+    }
+
+    setSelectedFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -318,7 +447,28 @@ export default function AdminPage() {
 
     const isEditing = editingIndex !== null;
     const base = isEditing ? certifications[editingIndex] : undefined;
-    const entry = buildCertificationFromForm(form, base);
+    let entry = buildCertificationFromForm(form, base);
+
+    setSaving(true);
+
+    // Urutan wajib: gambar dulu, JSON baru disimpan kalau gambar
+    // berhasil (atau tidak ada gambar baru sama sekali). Kalau upload
+    // gagal, berhenti di sini — JSON tidak disentuh.
+    if (selectedFile) {
+      const fileName = `${slugify(entry.title)}.${getFileExtension(selectedFile.name)}`;
+      const imagePath = `public/certificates/${fileName}`;
+      try {
+        await uploadCertificateImage(token, selectedFile, imagePath, `admin: upload gambar sertifikat ${entry.title}`);
+      } catch (err) {
+        setSaveStatus({
+          type: "error",
+          message: `Upload gambar gagal, JSON tidak disimpan. ${err instanceof Error ? err.message : ""}`.trim(),
+        });
+        setSaving(false);
+        return;
+      }
+      entry = { ...entry, image: `/certificates/${fileName}` };
+    }
 
     const nextList = isEditing
       ? certifications.map((c, i) => (i === editingIndex ? entry : c))
@@ -328,14 +478,12 @@ export default function AdminPage() {
       ? `admin: perbarui sertifikat ${entry.title}`
       : `admin: tambah sertifikat ${entry.title}`;
 
-    setSaving(true);
     try {
       const newSha = await saveCertificationsFile(token, nextList, certificationsSha, message);
       setCertifications(nextList);
       setCertificationsSha(newSha);
       setSaveStatus({ type: "success", message: isEditing ? "Sertifikat diperbarui." : "Sertifikat ditambahkan." });
-      setForm(EMPTY_FORM);
-      setEditingIndex(null);
+      resetForm();
     } catch (err) {
       if (err instanceof SaveConflictError) {
         setConflict(true);
@@ -371,8 +519,7 @@ export default function AdminPage() {
       setCertificationsSha(newSha);
       setSaveStatus({ type: "success", message: "Sertifikat dihapus." });
       if (editingIndex === index) {
-        setEditingIndex(null);
-        setForm(EMPTY_FORM);
+        resetForm();
       }
     } catch (err) {
       if (err instanceof SaveConflictError) {
@@ -387,8 +534,7 @@ export default function AdminPage() {
 
   const handleReloadAfterConflict = () => {
     setConflict(false);
-    setEditingIndex(null);
-    setForm(EMPTY_FORM);
+    resetForm();
     loadCertifications();
   };
 
@@ -463,6 +609,7 @@ export default function AdminPage() {
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-border text-text-muted">
+                    <th className="px-4 py-3 font-medium">Image</th>
                     <th className="px-4 py-3 font-medium">Date</th>
                     <th className="px-4 py-3 font-medium">Title</th>
                     <th className="px-4 py-3 font-medium">Issuer</th>
@@ -472,6 +619,18 @@ export default function AdminPage() {
                 <tbody>
                   {certifications.map((cert, i) => (
                     <tr key={`${cert.title}-${i}`} className="border-b border-border last:border-0">
+                      <td className="px-4 py-3">
+                        {cert.image ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={cert.image}
+                            alt=""
+                            className="h-10 w-10 rounded-(--radius-sm) border border-border object-cover"
+                          />
+                        ) : (
+                          <span className="text-text-muted">—</span>
+                        )}
+                      </td>
                       <td className="px-4 py-3 text-text-secondary">{cert.date}</td>
                       <td className="px-4 py-3 text-text-primary">{cert.title}</td>
                       <td className="px-4 py-3 text-text-secondary">{cert.issuer}</td>
@@ -573,6 +732,32 @@ export default function AdminPage() {
                     className="rounded-(--radius-sm) border border-border bg-transparent px-3 py-2 text-text-primary outline-none focus-visible:border-text-primary"
                   />
                 </label>
+
+                <label className="flex flex-col gap-1.5 text-sm sm:col-span-2">
+                  <span className="text-text-secondary">Gambar (opsional, PNG/JPG/WEBP, maks 2 MB)</span>
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    onChange={handleFileChange}
+                    className="text-sm text-text-secondary file:mr-3 file:rounded-full file:border file:border-border file:bg-transparent file:px-3 file:py-1.5 file:text-xs file:text-text-primary"
+                  />
+                </label>
+
+                {fileError && <p className="text-sm text-red-600 sm:col-span-2 dark:text-red-400">{fileError}</p>}
+
+                {(previewUrl || currentImage) && (
+                  <div className="sm:col-span-2">
+                    <p className="mb-1.5 text-xs text-text-secondary">
+                      {previewUrl ? "Pratinjau gambar baru:" : "Gambar saat ini — biarkan kosong kalau tidak mau diganti:"}
+                    </p>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={previewUrl ?? currentImage ?? undefined}
+                      alt=""
+                      className="h-24 w-24 rounded-(--radius-sm) border border-border object-cover"
+                    />
+                  </div>
+                )}
               </div>
 
               {formError && <p className="text-sm text-red-600 dark:text-red-400">{formError}</p>}
