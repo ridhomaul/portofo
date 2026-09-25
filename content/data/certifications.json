@@ -15,6 +15,12 @@
       "date": "20 July 2024",
       "title": "Mikrotik MTCNA",
       "issuer": "Universitas Bina Sarana Informatika"
+    },
+    {
+      "date": "05 June 2024",
+      "title": "IT Bootcamp \"Software Development\"",
+      "issuer": "Universitas Bina Sarana Informatika",
+      "image": "/certificates/it-bootcamp-software-development.png"
     }
   ]
 }
