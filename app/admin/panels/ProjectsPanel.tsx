@@ -145,7 +145,8 @@ export function ProjectsPanel({ token, resource }: Props) {
     setSaving(true);
 
     if (selectedFile) {
-      const imagePath = `public/projects/${entry.slug}.${getFileExtension(selectedFile.name)}`;
+      const fileName = `${entry.slug}.${getFileExtension(selectedFile.name)}`;
+      const imagePath = `public/projects/${fileName}`;
       try {
         await uploadImage(token, selectedFile, imagePath, `admin: upload gambar project ${entry.name}`);
       } catch (err) {
@@ -156,7 +157,7 @@ export function ProjectsPanel({ token, resource }: Props) {
         setSaving(false);
         return;
       }
-      entry = { ...entry, image: `/projects/${entry.slug}.${getFileExtension(selectedFile.name)}` };
+      entry = { ...entry, image: `/projects/${fileName}` };
     }
 
     const nextList = isEditing ? projects.map((p, i) => (i === editingIndex ? entry : p)) : [...projects, entry];

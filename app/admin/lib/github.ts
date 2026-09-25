@@ -101,14 +101,22 @@ export const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
 export const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
 
 // Nama file dari slug judul, huruf kecil semua, tanpa spasi — server
-// Linux membedakan huruf besar-kecil, jadi ini harus konsisten.
+// Linux membedakan huruf besar-kecil, jadi ini harus konsisten. Semua
+// karakter selain a-z0-9 (termasuk tanda kutip, slash, titik dua,
+// tanda tanya, dst — apa pun yang tidak valid di nama file) diganti
+// "-", run tanda hubung berturut-turut dirapikan jadi satu, dan
+// tanda hubung di awal/akhir dipotong. Kalau judul tidak punya huruf
+// atau angka apa pun (mis. cuma tanda baca atau aksara non-Latin),
+// hasilnya bisa string kosong — fallback ke "file" supaya tidak
+// pernah menghasilkan nama file yang cuma berisi ekstensi (".png").
 export function slugify(text: string): string {
-  return text
+  const slug = text
     .toLowerCase()
     .normalize("NFKD")
     .replace(/[̀-ͯ]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
+  return slug || "file";
 }
 
 export function getFileExtension(filename: string): string {

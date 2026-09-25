@@ -108,7 +108,8 @@ function FeaturedForm({
     setSaving(true);
 
     if (selectedFile) {
-      const imagePath = `public/projects/${entry.slug}.${getFileExtension(selectedFile.name)}`;
+      const fileName = `${entry.slug}.${getFileExtension(selectedFile.name)}`;
+      const imagePath = `public/projects/${fileName}`;
       try {
         await uploadImage(token, selectedFile, imagePath, `admin: upload gambar featured project ${entry.name}`);
       } catch (err) {
@@ -119,7 +120,7 @@ function FeaturedForm({
         setSaving(false);
         return;
       }
-      entry = { ...entry, image: `/projects/${entry.slug}.${getFileExtension(selectedFile.name)}` };
+      entry = { ...entry, image: `/projects/${fileName}` };
     }
 
     try {
