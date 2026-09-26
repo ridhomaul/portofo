@@ -35,7 +35,7 @@ export default function Hero() {
       <div className="rise flex flex-col items-start gap-6 sm:flex-row sm:items-center">
         <PixelReveal
           cover="/Myface.1.png"
-          reveal="/profil2.png"
+          reveal="/profil2.webp"
           alt={site.name}
           className="w-32 shrink-0 sm:w-40"
 />
@@ -64,8 +64,8 @@ export default function Hero() {
 
       {/* Separuh kedua judul sengaja dibuat pudar - hierarki lewat warna,
           bukan lewat bold. Ini tanda tangan visual referensi. */}
-      <h2 className="rise display mt-8 text-3xl font-normal sm:text-[2.5rem]" style={{ animationDelay: "60ms" }}>
-        Full-Stack Developer{" "}
+      <h2 className="rise display mt-8 text-2xl font-normal sm:text-[2rem]" style={{ animationDelay: "60ms" }}>
+        Full-Stack Web Developer{" "}
         <span className="text-text-secondary">&mdash; Laravel &amp; Next.js</span>
       </h2>
 
