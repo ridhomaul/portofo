@@ -4,13 +4,15 @@ import { useState } from "react";
 import type { Project } from "@/content/projects";
 import { ConflictBanner } from "../components/ConflictBanner";
 import { ProjectFieldsForm, type ProjectFormState } from "../components/ProjectFieldsForm";
-import { getFileExtension, uploadImage } from "../lib/github";
+import { DEPLOY_NOTE, getFileExtension, uploadImage } from "../lib/github";
 import type { useJsonResource } from "../lib/useJsonResource";
+import type { RecentUploads } from "../lib/useRecentUploads";
 import type { ProjectsFile } from "./ProjectsPanel";
 
 type Props = {
   token: string;
   resource: ReturnType<typeof useJsonResource<ProjectsFile>>;
+  recentUploads: RecentUploads;
 };
 
 function projectToForm(p: Project): ProjectFormState {
@@ -54,7 +56,7 @@ function buildProjectFromForm(form: ProjectFormState, base: Project): Project {
   return result;
 }
 
-export function FeaturedProjectPanel({ token, resource }: Props) {
+export function FeaturedProjectPanel({ token, resource, recentUploads }: Props) {
   const { data, loading, error, conflict, save, reloadAfterConflict } = resource;
 
   return (
@@ -69,7 +71,7 @@ export function FeaturedProjectPanel({ token, resource }: Props) {
 
       {conflict && <ConflictBanner onReload={reloadAfterConflict} />}
 
-      {!loading && data && <FeaturedForm token={token} data={data} save={save} />}
+      {!loading && data && <FeaturedForm token={token} data={data} save={save} recentUploads={recentUploads} />}
     </div>
   );
 }
@@ -78,10 +80,12 @@ function FeaturedForm({
   token,
   data,
   save,
+  recentUploads,
 }: {
   token: string;
   data: ProjectsFile;
   save: (next: ProjectsFile, message: string) => Promise<boolean>;
+  recentUploads: RecentUploads;
 }) {
   const [form, setForm] = useState<ProjectFormState>(projectToForm(data.featured));
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -109,9 +113,9 @@ function FeaturedForm({
 
     if (selectedFile) {
       const fileName = `${entry.slug}.${getFileExtension(selectedFile.name)}`;
-      const imagePath = `public/projects/${fileName}`;
+      const finalImagePath = `/projects/${fileName}`;
       try {
-        await uploadImage(token, selectedFile, imagePath, `admin: upload gambar featured project ${entry.name}`);
+        await uploadImage(token, selectedFile, `public${finalImagePath}`, `admin: upload gambar featured project ${entry.name}`);
       } catch (err) {
         setSaveStatus({
           type: "error",
@@ -120,13 +124,14 @@ function FeaturedForm({
         setSaving(false);
         return;
       }
-      entry = { ...entry, image: `/projects/${fileName}` };
+      recentUploads.remember(finalImagePath, selectedFile);
+      entry = { ...entry, image: finalImagePath };
     }
 
     try {
       const saved = await save({ ...data, featured: entry }, "admin: perbarui featured project");
       if (saved) {
-        setSaveStatus({ type: "success", message: "Featured project diperbarui." });
+        setSaveStatus({ type: "success", message: "Featured project diperbarui." + DEPLOY_NOTE });
         setSelectedFile(null);
       }
     } catch (err) {
@@ -141,7 +146,7 @@ function FeaturedForm({
       <ProjectFieldsForm
         form={form}
         onChange={setForm}
-        currentImage={data.featured.image || null}
+        currentImage={recentUploads.get(data.featured.image) ?? (data.featured.image || null)}
         file={selectedFile}
         onFileChange={setSelectedFile}
       />

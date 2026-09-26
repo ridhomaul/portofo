@@ -3,15 +3,18 @@
 import { useState } from "react";
 import type { Certification } from "@/content/certifications";
 import { ConflictBanner } from "../components/ConflictBanner";
+import { DeployAwareThumb } from "../components/DeployAwareThumb";
 import { ImageUploadField } from "../components/ImageUploadField";
-import { getFileExtension, slugify, uploadImage } from "../lib/github";
+import { DEPLOY_NOTE, getFileExtension, slugify, uploadImage } from "../lib/github";
 import type { useJsonResource } from "../lib/useJsonResource";
+import type { RecentUploads } from "../lib/useRecentUploads";
 
 export type CertificationsFile = { certifications: Certification[] };
 
 type Props = {
   token: string;
   resource: ReturnType<typeof useJsonResource<CertificationsFile>>;
+  recentUploads: RecentUploads;
 };
 
 type CertificationForm = {
@@ -52,7 +55,7 @@ function buildCertificationFromForm(form: CertificationForm, base?: Certificatio
   return result;
 }
 
-export function CertificationsPanel({ token, resource }: Props) {
+export function CertificationsPanel({ token, resource, recentUploads }: Props) {
   const { data, loading, error, conflict, save, reloadAfterConflict } = resource;
   const certifications = data?.certifications ?? null;
 
@@ -86,7 +89,7 @@ export function CertificationsPanel({ token, resource }: Props) {
       url: cert.url ?? "",
     });
     setSelectedFile(null);
-    setCurrentImage(cert.image ?? null);
+    setCurrentImage(recentUploads.get(cert.image) ?? cert.image ?? null);
     setFormError(null);
     setSaveStatus(null);
   };
@@ -122,9 +125,9 @@ export function CertificationsPanel({ token, resource }: Props) {
     // gagal, berhenti di sini — JSON tidak disentuh.
     if (selectedFile) {
       const fileName = `${slugify(entry.title)}.${getFileExtension(selectedFile.name)}`;
-      const imagePath = `public/certificates/${fileName}`;
+      const finalImagePath = `/certificates/${fileName}`;
       try {
-        await uploadImage(token, selectedFile, imagePath, `admin: upload gambar sertifikat ${entry.title}`);
+        await uploadImage(token, selectedFile, `public${finalImagePath}`, `admin: upload gambar sertifikat ${entry.title}`);
       } catch (err) {
         setSaveStatus({
           type: "error",
@@ -133,7 +136,8 @@ export function CertificationsPanel({ token, resource }: Props) {
         setSaving(false);
         return;
       }
-      entry = { ...entry, image: `/certificates/${fileName}` };
+      recentUploads.remember(finalImagePath, selectedFile);
+      entry = { ...entry, image: finalImagePath };
     }
 
     const nextList = isEditing
@@ -147,7 +151,10 @@ export function CertificationsPanel({ token, resource }: Props) {
     try {
       const saved = await save({ certifications: nextList }, message);
       if (saved) {
-        setSaveStatus({ type: "success", message: isEditing ? "Sertifikat diperbarui." : "Sertifikat ditambahkan." });
+        setSaveStatus({
+          type: "success",
+          message: (isEditing ? "Sertifikat diperbarui." : "Sertifikat ditambahkan.") + DEPLOY_NOTE,
+        });
         resetForm();
       }
     } catch (err) {
@@ -173,7 +180,7 @@ export function CertificationsPanel({ token, resource }: Props) {
     try {
       const saved = await save({ certifications: nextList }, message);
       if (saved) {
-        setSaveStatus({ type: "success", message: "Sertifikat dihapus." });
+        setSaveStatus({ type: "success", message: "Sertifikat dihapus." + DEPLOY_NOTE });
         if (editingIndex === index) {
           resetForm();
         }
@@ -213,16 +220,7 @@ export function CertificationsPanel({ token, resource }: Props) {
               {certifications.map((cert, i) => (
                 <tr key={`${cert.title}-${i}`} className="border-b border-border last:border-0">
                   <td className="px-4 py-3">
-                    {cert.image ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={cert.image}
-                        alt=""
-                        className="h-10 w-10 rounded-(--radius-sm) border border-border object-cover"
-                      />
-                    ) : (
-                      <span className="text-text-muted">—</span>
-                    )}
+                    <DeployAwareThumb src={cert.image} localPreviewUrl={recentUploads.get(cert.image)} />
                   </td>
                   <td className="px-4 py-3 text-text-secondary">{cert.date}</td>
                   <td className="px-4 py-3 text-text-primary">{cert.title}</td>

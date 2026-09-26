@@ -5,13 +5,15 @@ import type { CaseStudy, CaseStudySection, Project } from "@/content/projects";
 import { ConflictBanner } from "../components/ConflictBanner";
 import { ImagesEditor, type ImageEntry } from "../components/ImagesEditor";
 import { StringListEditor } from "../components/StringListEditor";
-import { getFileExtension, slugify, uploadImage } from "../lib/github";
+import { DEPLOY_NOTE, getFileExtension, slugify, uploadImage } from "../lib/github";
 import type { useJsonResource } from "../lib/useJsonResource";
+import type { RecentUploads } from "../lib/useRecentUploads";
 import type { ProjectsFile } from "./ProjectsPanel";
 
 type Props = {
   token: string;
   resource: ReturnType<typeof useJsonResource<ProjectsFile>>;
+  recentUploads: RecentUploads;
 };
 
 type SectionForm = {
@@ -37,7 +39,7 @@ function caseStudyToSections(cs: CaseStudy): SectionForm[] {
 
 const EMPTY_SECTION: SectionForm = { title: "", icon: "", images: [], description: "", points: [] };
 
-export function CaseStudyPanel({ token, resource }: Props) {
+export function CaseStudyPanel({ token, resource, recentUploads }: Props) {
   const { data, loading, error, conflict, save, reloadAfterConflict } = resource;
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
 
@@ -75,7 +77,14 @@ export function CaseStudyPanel({ token, resource }: Props) {
           </label>
 
           {activeProject && (
-            <CaseStudyForm key={activeProject.slug} token={token} project={activeProject} data={data} save={save} />
+            <CaseStudyForm
+              key={activeProject.slug}
+              token={token}
+              project={activeProject}
+              data={data}
+              save={save}
+              recentUploads={recentUploads}
+            />
           )}
         </>
       )}
@@ -88,11 +97,13 @@ function CaseStudyForm({
   project,
   data,
   save,
+  recentUploads,
 }: {
   token: string;
   project: Project;
   data: ProjectsFile;
   save: (next: ProjectsFile, message: string) => Promise<boolean>;
+  recentUploads: RecentUploads;
 }) {
   const [enabled, setEnabled] = useState(Boolean(project.caseStudy));
   const [intro, setIntro] = useState(project.caseStudy?.intro ?? "");
@@ -131,7 +142,7 @@ function CaseStudyForm({
       const saved = await save(applyEntry(nextProject), `admin: hapus case study ${project.name}`);
       if (saved) {
         setEnabled(false);
-        setSaveStatus({ type: "success", message: "Case study dihapus." });
+        setSaveStatus({ type: "success", message: "Case study dihapus." + DEPLOY_NOTE });
       }
     } catch (err) {
       setSaveStatus({ type: "error", message: err instanceof Error ? err.message : "Gagal menghapus." });
@@ -175,9 +186,10 @@ function CaseStudyForm({
           if (img.file) {
             const ext = getFileExtension(img.file.name);
             const fileName = `${slugify(section.title)}-${i + 1}.${ext}`;
-            const path = `public/projects/${project.slug}/${fileName}`;
-            await uploadImage(token, img.file, path, `admin: upload gambar case study ${project.name}`);
-            finalImages.push({ src: `/projects/${project.slug}/${fileName}`, alt: img.alt });
+            const finalImagePath = `/projects/${project.slug}/${fileName}`;
+            await uploadImage(token, img.file, `public${finalImagePath}`, `admin: upload gambar case study ${project.name}`);
+            recentUploads.remember(finalImagePath, img.file);
+            finalImages.push({ src: finalImagePath, alt: img.alt });
           } else {
             finalImages.push({ src: img.src, alt: img.alt });
           }
@@ -205,7 +217,7 @@ function CaseStudyForm({
       const saved = await save(applyEntry(nextProject), `admin: perbarui case study ${project.name}`);
       if (saved) {
         setEnabled(true);
-        setSaveStatus({ type: "success", message: "Case study disimpan." });
+        setSaveStatus({ type: "success", message: "Case study disimpan." + DEPLOY_NOTE });
       }
     } catch (err) {
       setSaveStatus({ type: "error", message: err instanceof Error ? err.message : "Gagal menyimpan." });
@@ -293,6 +305,7 @@ function CaseStudyForm({
               label="Images"
               items={section.images}
               onChange={(images) => updateSection(i, { images })}
+              recentUploads={recentUploads}
             />
           </div>
         ))}

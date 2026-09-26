@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useAuth } from "./lib/useAuth";
 import { useJsonResource } from "./lib/useJsonResource";
+import { useRecentUploads } from "./lib/useRecentUploads";
 import type { CertificationsFile } from "./panels/CertificationsPanel";
 import { CertificationsPanel } from "./panels/CertificationsPanel";
 import type { ExperienceFile } from "./panels/ExperiencePanel";
@@ -42,6 +43,11 @@ export default function AdminPage() {
   const experience = useJsonResource<ExperienceFile>(token, EXPERIENCE_PATH);
   const projects = useJsonResource<ProjectsFile>(token, PROJECTS_PATH);
   const site = useJsonResource<SiteFile>(token, SITE_PATH);
+
+  // Dibuat sekali di sini (bukan per panel) supaya pratinjau gambar
+  // yang baru diupload tidak hilang saat pindah tab sebelum situs
+  // publik selesai rebuild.
+  const recentUploads = useRecentUploads();
 
   if (!hydrated) {
     return null;
@@ -121,11 +127,17 @@ export default function AdminPage() {
             </aside>
 
             <div className="min-w-0 max-w-3xl flex-1 text-left">
-              {tab === "Certifications" && <CertificationsPanel token={token} resource={certifications} />}
+              {tab === "Certifications" && (
+                <CertificationsPanel token={token} resource={certifications} recentUploads={recentUploads} />
+              )}
               {tab === "Experience" && <ExperiencePanel resource={experience} />}
-              {tab === "Projects" && <ProjectsPanel token={token} resource={projects} />}
-              {tab === "Featured project" && <FeaturedProjectPanel token={token} resource={projects} />}
-              {tab === "Case study" && <CaseStudyPanel token={token} resource={projects} />}
+              {tab === "Projects" && <ProjectsPanel token={token} resource={projects} recentUploads={recentUploads} />}
+              {tab === "Featured project" && (
+                <FeaturedProjectPanel token={token} resource={projects} recentUploads={recentUploads} />
+              )}
+              {tab === "Case study" && (
+                <CaseStudyPanel token={token} resource={projects} recentUploads={recentUploads} />
+              )}
               {tab === "Site" && <SitePanel resource={site} />}
               {tab === "Stack" && <StackPanel resource={site} />}
               {tab === "Hero intro" && <HeroIntroPanel resource={site} />}
