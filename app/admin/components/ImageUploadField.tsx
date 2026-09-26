@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { DeployAwareThumb } from "./DeployAwareThumb";
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_BYTES } from "../lib/github";
 
 type Props = {
@@ -71,10 +72,9 @@ export function ImageUploadField({ label, currentImage, file, onChange, classNam
           <p className="mb-1.5 text-xs text-text-secondary">
             {previewUrl ? "Pratinjau gambar baru:" : "Gambar saat ini — biarkan kosong kalau tidak mau diganti:"}
           </p>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={previewUrl ?? currentImage ?? undefined}
-            alt=""
+          <DeployAwareThumb
+            src={currentImage}
+            localPreviewUrl={previewUrl}
             className="h-24 w-24 rounded-(--radius-sm) border border-border object-cover"
           />
         </div>

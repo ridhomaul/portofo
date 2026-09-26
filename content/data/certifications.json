@@ -7,14 +7,22 @@
       "image": "/certificates/sertifikat-digital.png"
     },
     {
-      "date": "29 June 2025",
-      "title": "Analisis Program",
-      "issuer": "Universitas Bina Sarana Informatika"
+      "date": "05 June 2024",
+      "title": "IT Bootcamp \"Software Development\"",
+      "issuer": "Universitas Bina Sarana Informatika",
+      "image": "/certificates/it-bootcamp-software-development.png"
     },
     {
-      "date": "20 July 2024",
-      "title": "Mikrotik MTCNA",
-      "issuer": "Universitas Bina Sarana Informatika"
+      "date": "24 January 2024",
+      "title": "Mikrotik",
+      "issuer": "MikroTik Certified Network Associate",
+      "image": "/certificates/mikrotik.jpg"
+    },
+    {
+      "date": "06 March 2026",
+      "title": "Software Development",
+      "issuer": "Professional Certification Authority",
+      "image": "/certificates/software-development.jpg"
     }
   ]
 }

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useAuth } from "./lib/useAuth";
 import { useJsonResource } from "./lib/useJsonResource";
+import { useRecentUploads } from "./lib/useRecentUploads";
 import type { CertificationsFile } from "./panels/CertificationsPanel";
 import { CertificationsPanel } from "./panels/CertificationsPanel";
 import type { ExperienceFile } from "./panels/ExperiencePanel";
@@ -43,86 +44,125 @@ export default function AdminPage() {
   const projects = useJsonResource<ProjectsFile>(token, PROJECTS_PATH);
   const site = useJsonResource<SiteFile>(token, SITE_PATH);
 
+  // Dibuat sekali di sini (bukan per panel) supaya pratinjau gambar
+  // yang baru diupload tidak hilang saat pindah tab sebelum situs
+  // publik selesai rebuild.
+  const recentUploads = useRecentUploads();
+
   if (!hydrated) {
     return null;
   }
 
   return (
     <div className="pb-20 pt-16">
-      <div className="mx-auto flex min-h-[40vh] max-w-3xl flex-col items-center justify-center px-6 text-center">
-        <h1 className="display text-2xl">Admin</h1>
+      {!token && (
+        <div className="mx-auto flex min-h-[40vh] max-w-3xl flex-col items-center justify-center px-6 text-center">
+          <h1 className="display text-2xl">Admin</h1>
 
-        {!token && (
-          <>
-            <p className="mt-3 max-w-[42ch] text-sm text-text-secondary">
-              Login dengan akun GitHub yang punya akses ke repo ini.
-            </p>
-            <button
-              type="button"
-              onClick={handleLogin}
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-bg transition-opacity hover:opacity-85"
-            >
-              Login with GitHub
-            </button>
-          </>
-        )}
+          <p className="mt-3 max-w-[42ch] text-sm text-text-secondary">
+            Login dengan akun GitHub yang punya akses ke repo ini.
+          </p>
+          <button
+            type="button"
+            onClick={handleLogin}
+            className="mt-6 inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-bg transition-opacity hover:opacity-85"
+          >
+            Login with GitHub
+          </button>
 
-        {token && (
-          <div className="mt-6 flex flex-col items-center gap-3">
-            {verifying && <p className="text-sm text-text-secondary">Memverifikasi token…</p>}
-
-            {user && (
-              <>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={user.avatar_url} alt={user.login} className="h-16 w-16 rounded-full border border-border" />
-                <p className="text-sm text-text-primary">
-                  Login sebagai <span className="font-medium">{user.name || user.login}</span>{" "}
-                  <span className="text-text-secondary">(@{user.login})</span>
-                </p>
-              </>
-            )}
-
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="mt-2 rounded-full border border-border px-5 py-2.5 text-sm text-text-secondary transition-colors hover:text-text-primary"
-            >
-              Logout
-            </button>
-          </div>
-        )}
-
-        {error && <p className="mt-4 max-w-[48ch] text-sm text-red-600 dark:text-red-400">{error}</p>}
-      </div>
+          {error && <p className="mt-4 max-w-[48ch] text-sm text-red-600 dark:text-red-400">{error}</p>}
+        </div>
+      )}
 
       {token && (
-        <div className="mx-auto mt-8 max-w-3xl px-6 text-left">
-          <nav className="flex flex-wrap gap-2 border-b border-border pb-4">
-            {TABS.map((t) => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => setTab(t)}
-                className={`rounded-full px-4 py-2 text-xs transition-colors ${
-                  tab === t
-                    ? "bg-accent text-bg"
-                    : "border border-border text-text-secondary hover:text-text-primary"
-                }`}
-              >
-                {t}
-              </button>
-            ))}
-          </nav>
+        <div className="mx-auto max-w-5xl px-6">
+          <h1 className="display text-2xl">Admin</h1>
+          {error && <p className="mt-3 max-w-[48ch] text-sm text-red-600 dark:text-red-400">{error}</p>}
 
-          <div className="mt-6">
-            {tab === "Certifications" && <CertificationsPanel token={token} resource={certifications} />}
-            {tab === "Experience" && <ExperiencePanel resource={experience} />}
-            {tab === "Projects" && <ProjectsPanel token={token} resource={projects} />}
-            {tab === "Featured project" && <FeaturedProjectPanel token={token} resource={projects} />}
-            {tab === "Case study" && <CaseStudyPanel token={token} resource={projects} />}
-            {tab === "Site" && <SitePanel resource={site} />}
-            {tab === "Stack" && <StackPanel resource={site} />}
-            {tab === "Hero intro" && <HeroIntroPanel resource={site} />}
+          {/*
+            Bukan position:sticky. Sidebar dan panel dulu memakai
+            sm:sticky sm:top-24, tapi itu tidak mengandalkan
+            "leluhur tanpa overflow: visible" dengan benar di semua
+            browser — html/body di globals.css sengaja diberi
+            overflow-x: clip untuk membereskan scrollbar horizontal,
+            dan kombinasi overflow-x: clip di leluhur dengan
+            position: sticky di keturunannya adalah bug WebKit/Safari
+            yang sudah lama didokumentasikan (Safari mematikan sticky
+            kalau ADA leluhur dengan overflow selain visible, bahkan
+            kalau leluhur itu sendiri tidak pernah discroll) — tidak
+            konsisten direproduksi di Chromium, tapi kita tidak mau
+            bergantung ke perilaku yang berbeda-beda per browser.
+            Solusinya: dua kolom ini dibatasi tingginya (viewport
+            dikurangi kira-kira ruang header + judul di atasnya) dan
+            masing-masing scroll sendiri lewat overflow-y-auto — jadi
+            sidebar tidak pernah perlu "menempel", karena halaman itu
+            sendiri tidak ikut bergulir saat konten panel di kanan
+            digulir. Di bawah sm, semua ukuran/overflow ini tidak
+            berlaku sama sekali — tetap bertumpuk dan mengalir normal.
+          */}
+          <div className="mt-8 flex flex-col gap-8 sm:h-[calc(100vh-13rem)] sm:flex-row">
+            <aside className="w-full flex-shrink-0 sm:h-full sm:w-[200px] sm:overflow-y-auto">
+              <nav className="flex flex-col gap-1">
+                {TABS.map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setTab(t)}
+                    className={`w-full rounded-(--radius-sm) border-l-2 px-4 py-2.5 text-left text-sm transition-colors ${
+                      tab === t
+                        ? "border-text-primary bg-surface font-medium text-text-primary"
+                        : "border-transparent text-text-secondary hover:bg-surface hover:text-text-primary"
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </nav>
+
+              <div className="mt-6 flex flex-col items-start gap-3 border-t border-border pt-6">
+                {verifying && <p className="text-xs text-text-secondary">Memverifikasi token…</p>}
+
+                {user && (
+                  <div className="flex items-center gap-2.5">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={user.avatar_url}
+                      alt={user.login}
+                      className="h-9 w-9 rounded-full border border-border"
+                    />
+                    <div className="text-xs">
+                      <p className="font-medium text-text-primary">{user.name || user.login}</p>
+                      <p className="text-text-secondary">@{user.login}</p>
+                    </div>
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="rounded-full border border-border px-4 py-2 text-xs text-text-secondary transition-colors hover:text-text-primary"
+                >
+                  Logout
+                </button>
+              </div>
+            </aside>
+
+            <div className="min-w-0 max-w-3xl flex-1 text-left sm:h-full sm:overflow-y-auto">
+              {tab === "Certifications" && (
+                <CertificationsPanel token={token} resource={certifications} recentUploads={recentUploads} />
+              )}
+              {tab === "Experience" && <ExperiencePanel resource={experience} />}
+              {tab === "Projects" && <ProjectsPanel token={token} resource={projects} recentUploads={recentUploads} />}
+              {tab === "Featured project" && (
+                <FeaturedProjectPanel token={token} resource={projects} recentUploads={recentUploads} />
+              )}
+              {tab === "Case study" && (
+                <CaseStudyPanel token={token} resource={projects} recentUploads={recentUploads} />
+              )}
+              {tab === "Site" && <SitePanel resource={site} />}
+              {tab === "Stack" && <StackPanel resource={site} />}
+              {tab === "Hero intro" && <HeroIntroPanel resource={site} />}
+            </div>
           </div>
         </div>
       )}

@@ -100,15 +100,29 @@ export async function saveJsonFile<T>(
 export const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
 export const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
 
+// Ditambahkan ke pesan sukses simpan di panel yang punya upload
+// gambar — commit masuk ke repo lewat API ini seketika, tapi situs
+// publik (dan file gambar statisnya) baru menyajikan versi baru
+// setelah Netlify selesai build ulang.
+export const DEPLOY_NOTE = " Situs publik sedang dibangun ulang — perubahan tampil di sana dalam 1-3 menit.";
+
 // Nama file dari slug judul, huruf kecil semua, tanpa spasi — server
-// Linux membedakan huruf besar-kecil, jadi ini harus konsisten.
+// Linux membedakan huruf besar-kecil, jadi ini harus konsisten. Semua
+// karakter selain a-z0-9 (termasuk tanda kutip, slash, titik dua,
+// tanda tanya, dst — apa pun yang tidak valid di nama file) diganti
+// "-", run tanda hubung berturut-turut dirapikan jadi satu, dan
+// tanda hubung di awal/akhir dipotong. Kalau judul tidak punya huruf
+// atau angka apa pun (mis. cuma tanda baca atau aksara non-Latin),
+// hasilnya bisa string kosong — fallback ke "file" supaya tidak
+// pernah menghasilkan nama file yang cuma berisi ekstensi (".png").
 export function slugify(text: string): string {
-  return text
+  const slug = text
     .toLowerCase()
     .normalize("NFKD")
     .replace(/[̀-ͯ]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
+  return slug || "file";
 }
 
 export function getFileExtension(filename: string): string {

@@ -3,15 +3,18 @@
 import { useState } from "react";
 import type { Project } from "@/content/projects";
 import { ConflictBanner } from "../components/ConflictBanner";
+import { DeployAwareThumb } from "../components/DeployAwareThumb";
 import { ProjectFieldsForm, type ProjectFormState } from "../components/ProjectFieldsForm";
-import { getFileExtension, uploadImage } from "../lib/github";
+import { DEPLOY_NOTE, getFileExtension, uploadImage } from "../lib/github";
 import type { useJsonResource } from "../lib/useJsonResource";
+import type { RecentUploads } from "../lib/useRecentUploads";
 
 export type ProjectsFile = { featured: Project; projects: Project[] };
 
 type Props = {
   token: string;
   resource: ReturnType<typeof useJsonResource<ProjectsFile>>;
+  recentUploads: RecentUploads;
 };
 
 const EMPTY_FORM: ProjectFormState = {
@@ -70,7 +73,7 @@ function buildProjectFromForm(form: ProjectFormState, base?: Project): Project {
   return result;
 }
 
-export function ProjectsPanel({ token, resource }: Props) {
+export function ProjectsPanel({ token, resource, recentUploads }: Props) {
   const { data, loading, error, conflict, save, reloadAfterConflict } = resource;
   const projects = data?.projects ?? null;
 
@@ -99,7 +102,7 @@ export function ProjectsPanel({ token, resource }: Props) {
     setEditingIndex(index);
     setForm(projectToForm(project));
     setSelectedFile(null);
-    setCurrentImage(project.image || null);
+    setCurrentImage(recentUploads.get(project.image) ?? (project.image || null));
     setFormError(null);
     setSaveStatus(null);
   };
@@ -145,9 +148,10 @@ export function ProjectsPanel({ token, resource }: Props) {
     setSaving(true);
 
     if (selectedFile) {
-      const imagePath = `public/projects/${entry.slug}.${getFileExtension(selectedFile.name)}`;
+      const fileName = `${entry.slug}.${getFileExtension(selectedFile.name)}`;
+      const finalImagePath = `/projects/${fileName}`;
       try {
-        await uploadImage(token, selectedFile, imagePath, `admin: upload gambar project ${entry.name}`);
+        await uploadImage(token, selectedFile, `public${finalImagePath}`, `admin: upload gambar project ${entry.name}`);
       } catch (err) {
         setSaveStatus({
           type: "error",
@@ -156,7 +160,8 @@ export function ProjectsPanel({ token, resource }: Props) {
         setSaving(false);
         return;
       }
-      entry = { ...entry, image: `/projects/${entry.slug}.${getFileExtension(selectedFile.name)}` };
+      recentUploads.remember(finalImagePath, selectedFile);
+      entry = { ...entry, image: finalImagePath };
     }
 
     const nextList = isEditing ? projects.map((p, i) => (i === editingIndex ? entry : p)) : [...projects, entry];
@@ -166,7 +171,10 @@ export function ProjectsPanel({ token, resource }: Props) {
     try {
       const saved = await save({ ...data, projects: nextList }, message);
       if (saved) {
-        setSaveStatus({ type: "success", message: isEditing ? "Project diperbarui." : "Project ditambahkan." });
+        setSaveStatus({
+          type: "success",
+          message: (isEditing ? "Project diperbarui." : "Project ditambahkan.") + DEPLOY_NOTE,
+        });
         resetForm();
       }
     } catch (err) {
@@ -192,7 +200,7 @@ export function ProjectsPanel({ token, resource }: Props) {
     try {
       const saved = await save({ ...data, projects: nextList }, message);
       if (saved) {
-        setSaveStatus({ type: "success", message: "Project dihapus." });
+        setSaveStatus({ type: "success", message: "Project dihapus." + DEPLOY_NOTE });
         if (editingIndex === index) resetForm();
       }
     } catch (err) {
@@ -250,16 +258,7 @@ export function ProjectsPanel({ token, resource }: Props) {
               {projects.map((project, i) => (
                 <tr key={`${project.slug}-${i}`} className="border-b border-border last:border-0">
                   <td className="px-4 py-3">
-                    {project.image ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={project.image}
-                        alt=""
-                        className="h-10 w-10 rounded-(--radius-sm) border border-border object-cover"
-                      />
-                    ) : (
-                      <span className="text-text-muted">—</span>
-                    )}
+                    <DeployAwareThumb src={project.image} localPreviewUrl={recentUploads.get(project.image)} />
                   </td>
                   <td className="px-4 py-3 text-text-primary">{project.name}</td>
                   <td className="px-4 py-3 text-text-secondary">{project.slug}</td>

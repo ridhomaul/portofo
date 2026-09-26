@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { DeployAwareThumb } from "./DeployAwareThumb";
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_BYTES } from "../lib/github";
+import type { RecentUploads } from "../lib/useRecentUploads";
 
 // `file` = gambar baru yang belum diupload, menggantikan `src` saat
 // disimpan. `src` kosong berarti belum pernah ada gambar untuk baris
@@ -12,9 +14,10 @@ type RowProps = {
   item: ImageEntry;
   onUpdate: (patch: Partial<ImageEntry>) => void;
   onRemove: () => void;
+  recentUploads?: RecentUploads;
 };
 
-function ImageEntryRow({ item, onUpdate, onRemove }: RowProps) {
+function ImageEntryRow({ item, onUpdate, onRemove, recentUploads }: RowProps) {
   const [fileError, setFileError] = useState<string | null>(null);
 
   // Turunan dari `item.file`, bukan state — revoke dilakukan sebagai
@@ -52,14 +55,11 @@ function ImageEntryRow({ item, onUpdate, onRemove }: RowProps) {
 
   return (
     <div className="flex flex-col gap-2 rounded-(--radius) border border-border p-3 sm:flex-row sm:items-start">
-      {(previewUrl || item.src) && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={previewUrl ?? item.src}
-          alt=""
-          className="h-16 w-16 flex-shrink-0 rounded-(--radius-sm) border border-border object-cover"
-        />
-      )}
+      <DeployAwareThumb
+        src={item.src}
+        localPreviewUrl={previewUrl ?? recentUploads?.get(item.src)}
+        className="h-16 w-16 flex-shrink-0 rounded-(--radius-sm) border border-border object-cover"
+      />
 
       <div className="flex flex-1 flex-col gap-2">
         <input
@@ -93,9 +93,10 @@ type Props = {
   label: string;
   items: ImageEntry[];
   onChange: (items: ImageEntry[]) => void;
+  recentUploads?: RecentUploads;
 };
 
-export function ImagesEditor({ label, items, onChange }: Props) {
+export function ImagesEditor({ label, items, onChange, recentUploads }: Props) {
   const update = (i: number, patch: Partial<ImageEntry>) => {
     onChange(items.map((item, idx) => (idx === i ? { ...item, ...patch } : item)));
   };
@@ -112,6 +113,7 @@ export function ImagesEditor({ label, items, onChange }: Props) {
             item={item}
             onUpdate={(patch) => update(i, patch)}
             onRemove={() => remove(i)}
+            recentUploads={recentUploads}
           />
         ))}
       </div>
