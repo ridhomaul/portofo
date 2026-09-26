@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import Link from "next/link";
 import { Sun, Moon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { site } from "@/content/site";
@@ -8,7 +9,7 @@ import { site } from "@/content/site";
 // Contact SENGAJA ada di navigasi. Itu tujuan akhir seluruh situs —
 // jangan sampai orang harus scroll sampai habis untuk menemukannya.
 const nav = [
-  { label: "Projects", href: "/#work" },
+  { label: "Projects", href: "/projects" },
   { label: "Experience", href: "/#experience" },
   { label: "Contact", href: "/#contact" },
 ];
@@ -52,13 +53,13 @@ export default function Header() {
 
         <nav className="flex items-center gap-1 sm:gap-2">
           {nav.map((item) => (
-            <a
+            <Link
               key={item.href}
               href={item.href}
               className="rounded-sm px-2.5 py-2 text-sm text-text-secondary transition-colors hover:text-text-primary sm:px-3"
             >
               {item.label}
-            </a>
+            </Link>
           ))}
 
           <span className="mx-1 h-5 w-px bg-border sm:mx-2" aria-hidden />
