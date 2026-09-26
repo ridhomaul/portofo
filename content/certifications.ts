@@ -1,3 +1,5 @@
+import data from "./data/certifications.json";
+
 export type Certification = {
   date: string;          // contoh: "Mar 2026"
   title: string;
@@ -7,11 +9,6 @@ export type Certification = {
   image?: string;        // path di public/certificates/
 };
 
-export const certifications: Certification[] = [
-  {
-    date: "21 May 2024",
-    title: "Workshop IT Bootcamp",
-    issuer: "Universitas Bina Sarana Informatika",
-    image: "/certificates/sertifikat-digital.png",
-  },
-];
+// Diedit lewat /admin -> commit ke content/data/certifications.json.
+// File ini cuma loader tipis supaya komponen yang sudah ada tidak perlu berubah.
+export const certifications: Certification[] = data.certifications;
