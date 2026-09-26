@@ -11,6 +11,12 @@
       "title": "IT Bootcamp \"Software Development\"",
       "issuer": "Universitas Bina Sarana Informatika",
       "image": "/certificates/it-bootcamp-software-development.png"
+    },
+    {
+      "date": "24 January 2024",
+      "title": "Mikrotik",
+      "issuer": "MikroTik Certified Network Associate",
+      "image": "/certificates/mikrotik.jpg"
     }
   ]
 }
