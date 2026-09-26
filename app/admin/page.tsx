@@ -79,8 +79,29 @@ export default function AdminPage() {
           <h1 className="display text-2xl">Admin</h1>
           {error && <p className="mt-3 max-w-[48ch] text-sm text-red-600 dark:text-red-400">{error}</p>}
 
-          <div className="mt-8 flex flex-col gap-8 sm:flex-row sm:items-start">
-            <aside className="w-full flex-shrink-0 sm:sticky sm:top-24 sm:w-[200px] sm:self-start">
+          {/*
+            Bukan position:sticky. Sidebar dan panel dulu memakai
+            sm:sticky sm:top-24, tapi itu tidak mengandalkan
+            "leluhur tanpa overflow: visible" dengan benar di semua
+            browser — html/body di globals.css sengaja diberi
+            overflow-x: clip untuk membereskan scrollbar horizontal,
+            dan kombinasi overflow-x: clip di leluhur dengan
+            position: sticky di keturunannya adalah bug WebKit/Safari
+            yang sudah lama didokumentasikan (Safari mematikan sticky
+            kalau ADA leluhur dengan overflow selain visible, bahkan
+            kalau leluhur itu sendiri tidak pernah discroll) — tidak
+            konsisten direproduksi di Chromium, tapi kita tidak mau
+            bergantung ke perilaku yang berbeda-beda per browser.
+            Solusinya: dua kolom ini dibatasi tingginya (viewport
+            dikurangi kira-kira ruang header + judul di atasnya) dan
+            masing-masing scroll sendiri lewat overflow-y-auto — jadi
+            sidebar tidak pernah perlu "menempel", karena halaman itu
+            sendiri tidak ikut bergulir saat konten panel di kanan
+            digulir. Di bawah sm, semua ukuran/overflow ini tidak
+            berlaku sama sekali — tetap bertumpuk dan mengalir normal.
+          */}
+          <div className="mt-8 flex flex-col gap-8 sm:h-[calc(100vh-13rem)] sm:flex-row">
+            <aside className="w-full flex-shrink-0 sm:h-full sm:w-[200px] sm:overflow-y-auto">
               <nav className="flex flex-col gap-1">
                 {TABS.map((t) => (
                   <button
@@ -126,7 +147,7 @@ export default function AdminPage() {
               </div>
             </aside>
 
-            <div className="min-w-0 max-w-3xl flex-1 text-left">
+            <div className="min-w-0 max-w-3xl flex-1 text-left sm:h-full sm:overflow-y-auto">
               {tab === "Certifications" && (
                 <CertificationsPanel token={token} resource={certifications} recentUploads={recentUploads} />
               )}
