@@ -17,6 +17,12 @@
       "title": "Mikrotik",
       "issuer": "MikroTik Certified Network Associate",
       "image": "/certificates/mikrotik.jpg"
+    },
+    {
+      "date": "06 March 2026",
+      "title": "Software Development",
+      "issuer": "Professional Certification Authority",
+      "image": "/certificates/software-development.jpg"
     }
   ]
 }
