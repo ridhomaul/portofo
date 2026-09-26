@@ -5,7 +5,7 @@
 export const GITHUB_OWNER = "ridhomaul";
 export const GITHUB_REPO_NAME = "portofo";
 export const GITHUB_REPO = `${GITHUB_OWNER}/${GITHUB_REPO_NAME}`;
-export const GITHUB_BRANCH = "admin-dashboard";
+export const GITHUB_BRANCH = "main";
 
 export type GithubUser = {
   login: string;
